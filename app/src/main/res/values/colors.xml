@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="light">#fff</color>
+    <color name="grey">#8D8D8D</color>
+    <color name="medium">#FF2100</color>
+    <color name="danger">#FF1500</color>
+    <color name="danger_dark">#800D02</color>
+    <color name="light_charm">#FFCA2F</color>
+    <color name="light_divider">#CFB9B9</color>
+    <color name="dark">#2C0101</color>
+    <color name="dracula">#1D1B1B</color>
+    <color name="dracula_light">#575454</color>
+    <color name="faded">#9FFFFFFF</color>
+    <color name="black">#000</color>
+
+    <!-- Gradients -->
+    <color name="gradient_start">#FC0065</color>
+    <color name="gradient_end">#FF9900</color>
+
+    <color name="gradient_dark_start">#FC0065</color>
+    <color name="gradient_dark_end">#5F0227</color>
+</resources>

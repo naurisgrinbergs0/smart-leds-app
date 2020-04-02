@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dracula"
+    android:fitsSystemWindows="true"
+    tools:context=".activities.ColorPickActivity">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight=".9">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/actionLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="@+id/changePickerLayout"
+                app:layout_constraintStart_toStartOf="@+id/changePickerLayout"
+                app:layout_constraintTop_toBottomOf="@+id/changePickerLayout">
+
+                <TextView
+                    android:id="@+id/textView7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif-light"
+                    android:text="Transition  duration in milliseconds"
+                    android:textColor="@color/light"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.503"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/pulseCheckBox" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                </RadioGroup>
+
+                <com.example.bt.views.AdvancedSeekBar
+                    android:id="@+id/durationSeekBar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:max="10000"
+                    android:progress="300"
+                    android:progressTint="@color/light"
+                    android:secondaryProgressTint="@color/light"
+                    android:thumbTint="@color/light"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView7"
+                    app:min="0"
+                    app:steps="20" />
+
+                <CheckBox
+                    android:id="@+id/pulseCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="@color/light"
+                    android:fontFamily="sans-serif-light"
+                    android:text="Pulse"
+                    android:textColor="@color/light"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="@+id/smoothTransitionCheckBox"
+                    app:layout_constraintTop_toBottomOf="@+id/smoothTransitionCheckBox" />
+
+                <CheckBox
+                    android:id="@+id/smoothTransitionCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="@color/light"
+                    android:fontFamily="sans-serif-light"
+                    android:text="Smooth transition"
+                    android:textColor="@color/light"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/colorPickerLayout"
+                android:layout_width="383dp"
+                android:layout_height="382dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.example.bt.views.ColorHive
+                    android:id="@+id/colorHiveView"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:cellLossNumber="4"
+                    app:cellPaddingPercent="10"
+                    app:centerRadiusPercent="15"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/colorWheelView"
+                    app:layout_constraintStart_toStartOf="@+id/colorWheelView"
+                    app:layout_constraintTop_toTopOf="@+id/colorWheelView"
+                    app:outerCellNumber="30"
+                    tools:visibility="visible" />
+
+                <com.example.bt.views.ColorWheel
+                    android:id="@+id/colorWheelView"
+                    android:layout_width="380dp"
+                    android:layout_height="380dp"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.333"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:visibility="visible" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <com.example.bt.views.BrightnessSlider
+                android:id="@+id/brightnessSlider"
+                android:layout_width="0dp"
+                android:layout_height="41dp"
+                app:bar_height="20"
+                app:initial_value="1"
+                app:layout_constraintEnd_toEndOf="@+id/colorPickerLayout"
+                app:layout_constraintStart_toStartOf="@+id/colorPickerLayout"
+                app:layout_constraintTop_toBottomOf="@+id/colorPickerLayout" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/changePickerLayout"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                app:layout_constraintEnd_toEndOf="@+id/colorPickerLayout"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/colorPickerLayout"
+                app:layout_constraintTop_toBottomOf="@+id/brightnessSlider">
+
+                <Button
+                    android:id="@+id/nextPickerButton"
+                    android:layout_width="26dp"
+                    android:layout_height="40dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/arrow"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/prevPickerButton"
+                    android:layout_width="26dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="10dp"
+                    android:background="@drawable/arrow"
+                    android:rotation="180"
+                    android:shadowColor="#0000"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:fontFamily="sans-serif-light"
+                    android:text="Choose color picker"
+                    android:textColor="@color/faded"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/nextPickerButton"
+                    app:layout_constraintStart_toEndOf="@+id/prevPickerButton"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight=".1">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/homeConstraintLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/homeImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/icon_home" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ColorField">
+        <attr name="color_value" format="color" />
+        <attr name="stroke_color" format="color" />
+        <attr name="stroke_width" format="integer" />
+    </declare-styleable>
+    <declare-styleable name="BrightnessSlider">
+        <attr name="bar_padding" format="integer" />
+        <attr name="bar_height" format="integer" />
+        <attr name="initial_value" format="float" />
+        <attr name="color_left" format="color" />
+        <attr name="color_right" format="color" />
+    </declare-styleable>
+    <declare-styleable name="AdvancedSeekBar">
+        <attr name="steps" format="integer" />
+        <attr name="min" format="integer" />
+    </declare-styleable>
+    <declare-styleable name="ColorHive">
+        <attr name="outerCellNumber" format="integer" />
+        <attr name="cellPaddingPercent" format="integer" />
+        <attr name="centerRadiusPercent" format="integer" />
+        <attr name="cellLossNumber" format="integer" />
+    </declare-styleable>
+</resources>

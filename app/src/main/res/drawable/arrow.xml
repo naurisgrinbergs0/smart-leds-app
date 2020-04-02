@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="false">
+        <vector android:height="20dp"
+            android:width="10dp"
+            android:viewportWidth="30.0"
+            android:viewportHeight="60.0">
+
+            <group>
+                <path
+                    android:name="arrow"
+                    android:strokeColor="@color/light"
+                    android:strokeWidth="2"
+                    android:pathData="M 1, 1 l 28, 28 -28, 28 Z"/>
+            </group>
+        </vector>
+    </item>
+    <item android:state_pressed="true">
+        <vector android:height="20dp"
+            android:width="10dp"
+            android:viewportWidth="30.0"
+            android:viewportHeight="60.0">
+
+            <group>
+                <path
+                    android:name="arrow"
+                    android:fillColor="@color/light"
+                    android:pathData="M 1, 1 l 28, 28 -28, 28 Z"/>
+            </group>
+        </vector>
+    </item>
+</selector>

@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">Smart Lights</string>
+
+    <!-- Buttons -->
+    <string name="button_color_picker">Color Picker</string>
+    <string name="button_notification_events">Notification Events</string>
+    <string name="button_discover_strips">Discover Devices</string>
+
+    <!-- Text views -->
+    <string name="settings">Settings</string>
+    <string name="configure_notif_events">Notification event colors</string>
+    <string name="enable_notif_events">Notification events</string>
+    <string name="reboot">Reboot strip</string>
+    <string name="disconnect">Disconnect from strip</string>
+    <string name="auto_reconnect">Auto reconnect</string>
+    <string name="notification_events">Notification events</string>
+    <string name="led_strip">LED strip</string>
+    <string name="connected_to">Connected strip: %s</string>
+    <string name="mac_address">Mac address: %s</string>
+    <string name="time_connected">Time connected: %s</string>
+    <string name="connected">Connected</string>
+    <string name="connecting_to">Connecting to %s</string>
+
+    <!-- Toasts -->
+    <string name="toast_strip_connected">Connected to %s</string>
+    <string name="toast_strip_disconnected">Disconnected from %s</string>
+    <string name="foreground_service_started">Foreground service started</string>
+    <string name="toast_rebooting">Rebooting %s</string>
+
+    <!-- Memory connector variables -->
+    <string name="var_notif_events">var_notif_events</string>
+    <string name="var_auto_reconnect">var_auto_reconnect</string>
+    <string name="var_picker_index">var_picker_index</string>
+    <string name="var_auto_reconnect_mac">var_auto_reconnect_mac</string>
+    <string name="var_auto_reconnect_name">var_auto_reconnect_name</string>
+    <string name="var_clean_open">var_clean_open</string>
+
+    <!-- Action names -->
+    <string name="action_foreground_service_bind">action_foreground_service_bind</string>
+    <string name="action_bluetooth_communication_start">action_bluetooth_communication_start</string>
+    <string name="action_bluetooth_communication_end">action_bluetooth_communication_stop</string>
+</resources>
