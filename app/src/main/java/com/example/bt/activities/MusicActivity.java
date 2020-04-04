@@ -2,39 +2,26 @@ package com.example.bt.activities;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.AnimatedVectorDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 
 import com.example.bt.R;
 import com.example.bt.SharedServices;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-
 public class MusicActivity extends AppCompatActivity {
 
-    private Button syncButton;
+    private ImageView syncImageView;
     private SeekBar sensitivitySeekBar;
     private SeekBar smoothnessSeekBar;
 
@@ -58,18 +45,17 @@ public class MusicActivity extends AppCompatActivity {
             }
         });
 
-        syncButton.setOnClickListener(new View.OnClickListener() {
+        syncImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(recordTask.isRecording == false) {
-                    // start recording
+                if(!recordTask.isRecording) {
                     recordTask.execute();
-                    syncButton.setText("Stop");
+                    Drawable syncButtonDrawable =  syncImageView.getDrawable();
+                    ((AnimatedVectorDrawable)syncButtonDrawable).start();
                 }
                 else {
                     // stop recording
                     recordTask.isRecording = false;
-                    syncButton.setText("Sync");
                 }
             }
         });
@@ -113,7 +99,7 @@ public class MusicActivity extends AppCompatActivity {
     }
 
     private void InitializeFields() {
-        syncButton = findViewById(R.id.syncButton);
+        syncImageView = findViewById(R.id.syncImageView);
         sensitivitySeekBar = findViewById(R.id.sensitivitySeekBar);
         smoothnessSeekBar = findViewById(R.id.smoothnessSeekBar);
         homeConstraintLayout3 = findViewById(R.id.homeConstraintLayout3);

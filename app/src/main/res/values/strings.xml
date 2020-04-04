@@ -20,6 +20,7 @@
     <string name="time_connected">Time connected: %s</string>
     <string name="connected">Connected</string>
     <string name="connecting_to">Connecting to %s</string>
+    <string name="sync_lights_with_music">Synchronize strip with audio</string>
 
     <!-- Toasts -->
     <string name="toast_strip_connected">Connected to %s</string>
