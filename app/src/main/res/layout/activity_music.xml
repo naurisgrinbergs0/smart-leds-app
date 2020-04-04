@@ -42,19 +42,11 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <SeekBar
-                    android:id="@+id/cutoffThresholdSeekBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="25dp"
-                    android:max="50"
-                    android:thumb="@drawable/thumb_light_small"
-                    app:layout_constraintStart_toStartOf="@+id/textView12"
-                    app:layout_constraintTop_toBottomOf="@+id/textView12" />
-
-                <SeekBar
                     android:id="@+id/sensitivitySeekBar"
                     android:layout_width="match_parent"
                     android:layout_height="25dp"
                     android:max="100"
+                    android:progress="60"
                     android:thumb="@drawable/thumb_light_small"
                     app:layout_constraintStart_toStartOf="@+id/textView9"
                     app:layout_constraintTop_toBottomOf="@+id/textView9" />
@@ -90,17 +82,6 @@
                     android:textColor="@color/light"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/syncButton" />
-
-                <TextView
-                    android:id="@+id/textView12"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:fontFamily="sans-serif-light"
-                    android:text="Cutoff threshold"
-                    android:textColor="@color/light"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/sensitivitySeekBar" />
 
                 <Button
                     android:id="@+id/syncButton"

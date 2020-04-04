@@ -28,13 +28,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 public class MusicActivity extends AppCompatActivity {
 
     private Button syncButton;
     private SeekBar sensitivitySeekBar;
     private SeekBar smoothnessSeekBar;
-    private SeekBar cutoffThresholdSeekBar;
 
     private View homeConstraintLayout3;
 
@@ -44,8 +46,6 @@ public class MusicActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music);
-
-        RequestPermissions();
 
         InitializeFields();
 
@@ -90,36 +90,37 @@ public class MusicActivity extends AppCompatActivity {
 
             }
         });
-    }
 
-    private void RequestPermissions() {
-        if(ContextCompat.checkSelfPermission(this.getApplicationContext()
-                , Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
-            // not granted
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.RECORD_AUDIO}, 200);
-        }
+        sensitivitySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(recordTask != null){
+                    recordTask.sensitivity = (sensitivitySeekBar.getMax() - progress) / 10f;
+                    recordTask.coefficient = (float) (255f / Math.pow(255f, recordTask.sensitivity));
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
     }
 
     private void InitializeFields() {
         syncButton = findViewById(R.id.syncButton);
         sensitivitySeekBar = findViewById(R.id.sensitivitySeekBar);
         smoothnessSeekBar = findViewById(R.id.smoothnessSeekBar);
-        cutoffThresholdSeekBar = findViewById(R.id.cutoffThresholdSeekBar);
-        recordTask = new RecordTask();
         homeConstraintLayout3 = findViewById(R.id.homeConstraintLayout3);
-    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode){
-            case 200:{
-                if(grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED)
-                    RequestPermissions();
-                return;
-            }
-        }
+        recordTask = new RecordTask();
+        recordTask.sensitivity = (sensitivitySeekBar.getMax() - sensitivitySeekBar.getProgress()) / 10f;
+        recordTask.coefficient = (float) (255f / Math.pow(255f, recordTask.sensitivity));
     }
 
 
@@ -127,6 +128,8 @@ public class MusicActivity extends AppCompatActivity {
 
         private int SAMPLE_RATE = 44100;
         public boolean isRecording = false;
+        public float sensitivity;
+        public float coefficient;
 
         @Override
         protected Object doInBackground(Object[] objects) {
@@ -139,9 +142,8 @@ public class MusicActivity extends AppCompatActivity {
                     AudioFormat.CHANNEL_IN_MONO,
                     AudioFormat.ENCODING_PCM_16BIT);
 
-            if (bufferSize == AudioRecord.ERROR || bufferSize == AudioRecord.ERROR_BAD_VALUE) {
+            if (bufferSize == AudioRecord.ERROR || bufferSize == AudioRecord.ERROR_BAD_VALUE)
                 bufferSize = SAMPLE_RATE * 2;
-            }
 
             short[] audioBuffer = new short[bufferSize / 2];
 
@@ -151,27 +153,19 @@ public class MusicActivity extends AppCompatActivity {
                     AudioFormat.ENCODING_PCM_16BIT,
                     bufferSize);
 
-            if (record.getState() != AudioRecord.STATE_INITIALIZED) {
-                Log.e("AUDIO RECORD", "Audio Record can't initialize!");
+            if (record.getState() != AudioRecord.STATE_INITIALIZED)
                 return null;
-            }
+
             record.startRecording();
 
-            Log.v("AUDIO RECORD", "Create recording");
-
-            long shortsRead = 0;
             while (isRecording) {
                 int numberOfShort = record.read(audioBuffer, 0, audioBuffer.length);
-                shortsRead += numberOfShort;
-
-                // Do something with the audioBuffer
                 publishProgress(audioBuffer, numberOfShort);
             }
 
             record.stop();
             record.release();
 
-            Log.v("AUDIO RECORD", String.format("Recording stopped. Samples read: %d", shortsRead));
             return null;
         }
 
@@ -181,41 +175,37 @@ public class MusicActivity extends AppCompatActivity {
         protected void onProgressUpdate(Object[] values) {
             short[] buffer = (short[])values[0];
             int size = (int) values[1];
+
             float sum = 0;
             int min = 0, max = 10000;
-            for(int i = 0; i < size; i++){
-                sum += Math.abs(buffer[i]); // divide so there are not so big values
-            }
+            for(int i = 0; i < size; i++)
+                sum += Math.abs(buffer[i]);
+
             float average = sum / size;
             float averageMapped = (average - (float) min) * (255f - 0f) / (max - min) + 0;
-
-            float coefficient = (float) (255f / Math.pow(255f, sensitivitySeekBar.getProgress() / 10f));
-            float value = (float) Math.abs(coefficient * Math.pow(averageMapped, sensitivitySeekBar.getProgress() / 10f));
-
-            if(value < cutoffThresholdSeekBar.getProgress())
-                value = 0;
+            float value = (int) Math.abs(coefficient * Math.pow(averageMapped, sensitivity));
 
             SharedServices.DataTransfer.SetSmoothColor(Color.rgb(value, 0, 0));
         }
-    }
 
-    public static int GetFrequency(int sampleRate, short [] audioData){
+        private int GetFrequency(int sampleRate, short [] audioData){
 
-        int numSamples = audioData.length;
-        int numCrossing = 0;
-        for (int p = 0; p < numSamples-1; p++)
-        {
-            if ((audioData[p] > 0 && audioData[p + 1] <= 0) ||
-                    (audioData[p] < 0 && audioData[p + 1] >= 0))
+            int numSamples = audioData.length;
+            int numCrossing = 0;
+            for (int p = 0; p < numSamples-1; p++)
             {
-                numCrossing++;
+                if ((audioData[p] > 0 && audioData[p + 1] <= 0) ||
+                        (audioData[p] < 0 && audioData[p + 1] >= 0))
+                {
+                    numCrossing++;
+                }
             }
+
+            float numSecondsRecorded = (float)numSamples/(float)sampleRate;
+            float numCycles = numCrossing/2;
+            float frequency = numCycles/numSecondsRecorded;
+
+            return (int)frequency;
         }
-
-        float numSecondsRecorded = (float)numSamples/(float)sampleRate;
-        float numCycles = numCrossing/2;
-        float frequency = numCycles/numSecondsRecorded;
-
-        return (int)frequency;
     }
 }

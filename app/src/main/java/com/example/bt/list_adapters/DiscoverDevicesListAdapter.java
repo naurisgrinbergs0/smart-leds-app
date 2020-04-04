@@ -19,7 +19,7 @@ public class DiscoverDevicesListAdapter extends BaseAdapter {
     public DiscoverDevicesListAdapter(Context context, ArrayList<DiscoverDevicesRowItem> aRow) {
 
         this.singleRow = aRow;
-        thisInflater = ( LayoutInflater.from(context) );
+        thisInflater = LayoutInflater.from(context);
     }
 
     @Override

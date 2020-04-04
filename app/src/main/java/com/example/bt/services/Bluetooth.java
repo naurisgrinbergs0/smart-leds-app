@@ -42,8 +42,8 @@ public class Bluetooth
                 aMain.actionCallback(intent);
             if(aSettings != null)
                 aSettings.actionCallback(intent);
-
-            if(intent.getAction().equals(BluetoothDevice.ACTION_ACL_CONNECTED)){
+Log.d("APP", intent.getAction());
+            if(intent.getAction().equals(BluetoothDevice.ACTION_ACL_CONNECTED)){Log.d("APP", "Connected Bluetooth!");
                 CancelDiscovery();
                 connectedDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 MemoryConnector.setString(context, context.getString(R.string.var_auto_reconnect_mac), connectedDevice.getAddress());
@@ -65,6 +65,11 @@ public class Bluetooth
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+
+        filter.addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED);
+        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        filter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
         context.registerReceiver(bluetoothReceiver, filter);
     }
 
@@ -82,7 +87,6 @@ public class Bluetooth
 
     public void Create() {
         registerReceiver();
-
         if(aMain != null)
             aMain.actionCallback(new Intent(context.getString(R.string.action_bluetooth_communication_start)));
     }
@@ -112,9 +116,7 @@ public class Bluetooth
     }
     public void Reconnect(){
         String autoReconnectMac = MemoryConnector.getString(context, context.getString(R.string.var_auto_reconnect_mac));
-        if(autoReconnectMac != null
-                && MemoryConnector.getBool(context, context.getString(R.string.var_auto_reconnect))
-                && connectedDevice == null){
+        if(autoReconnectMac != null && connectedDevice == null){
             this.ConnectPaired(autoReconnectMac);
         }
     }

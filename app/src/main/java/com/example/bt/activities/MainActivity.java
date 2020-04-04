@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 
@@ -40,6 +41,7 @@ import static com.example.bt.SharedServices.aMain;
 public class MainActivity extends AppCompatActivity {
     private static final int TURN_BT_ON_REQUEST = 1;
     private static final int BT_PERMISSION_REQUEST = 2;
+    private static final int AUDIO_PERMISSION_REQUEST = 3;
 
     private Button findLedStripButton;
 
@@ -73,32 +75,27 @@ public class MainActivity extends AppCompatActivity {
     public void onPause(){
         super.onPause();
         Bluetooth.CancelDiscovery();
+        if(IsServiceRunning())
+            unbindService(connection);
     }
     @Override
     protected void onDestroy(){
         super.onDestroy();
         aMain = null; // null out activity
-        Bluetooth.CancelDiscovery();
-        if(IsServiceRunning())
-            unbindService(connection);
-    }
-
-    @Override
-    protected void onStop(){
-        super.onStop();
-        Bluetooth.CancelDiscovery();
-        if(IsServiceRunning())
-            unbindService(connection);
     }
 
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults){
         switch (requestCode){
-            case BT_PERMISSION_REQUEST:{
-                // if granted - go discover
+            case BT_PERMISSION_REQUEST: {
                 if(grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     findLedStrip();
+                break;
+            }
+            case AUDIO_PERMISSION_REQUEST: {
+                if(grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    switchToMusicSyncActivity();
                 break;
             }
         }
@@ -135,11 +132,23 @@ public class MainActivity extends AppCompatActivity {
                 // open dialog
                 FragmentManager fm = getSupportFragmentManager();
                 discoverDevicesDialog.show(fm, "fragment_discover_devices");
-                // start discovery
-                Bluetooth.StartDiscovery();
             }
         }
     }
+
+    private void switchToMusicSyncActivity(){
+        if(ContextCompat.checkSelfPermission(this.getApplicationContext()
+                , Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_PERMISSION_REQUEST);
+        }else{
+            Intent intent = new Intent(MainActivity.this, MusicActivity.class);
+            startActivity(intent);
+            overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top);
+        }
+    }
+
+
 
     public boolean IsConnectedDeviceNotNull() {
         if(service != null)
@@ -187,12 +196,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void StartEntryAnimation(){
         if(MemoryConnector.getBool(this, getString(R.string.var_clean_open))){
-            MemoryConnector.setBool(this, getString(R.string.var_clean_open), false);
             // auto reconnect
             boolean autoRec =
                     MemoryConnector.getBool(MainActivity.this, getString(R.string.var_auto_reconnect))
-                            && MemoryConnector.getString(MainActivity.this, getString(R.string.var_auto_reconnect_mac)) != null
-                            && !IsConnectedDeviceNotNull();
+                    && MemoryConnector.getString(MainActivity.this, getString(R.string.var_auto_reconnect_mac)) != null
+                    && !IsConnectedDeviceNotNull();
 
 
             // set initial view properties
@@ -225,6 +233,7 @@ public class MainActivity extends AppCompatActivity {
             move(splashMoveLayout, DURATION_LONG, 0, 0);
             if(!autoRec)
                 fadeIn(findLedStripButton, DURATION_LONG);
+
             fadeIn(motoLayout, DURATION_LONG);
             fadeIn(settingsCl, DURATION_LONG);
 
@@ -272,10 +281,7 @@ public class MainActivity extends AppCompatActivity {
         musicConstraintLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // change activity
-                Intent intent = new Intent(MainActivity.this, MusicActivity.class);
-                startActivity(intent);
-                overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top);
+                switchToMusicSyncActivity();
             }
         });
 
@@ -323,10 +329,9 @@ public class MainActivity extends AppCompatActivity {
                     discoverDevicesDialog.postDeviceFound(device);
                 break;
             }
-            case BluetoothDevice.ACTION_ACL_CONNECTED : {
+            case BluetoothDevice.ACTION_ACL_CONNECTED : {Log.d("APP", "Connected Main!");
                 BluetoothDevice connectedDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if(connectedDevice != null)
-                    postDeviceConnect(connectedDevice);
+                postDeviceConnect(connectedDevice);
                 break;
             }
             case BluetoothDevice.ACTION_ACL_DISCONNECTED : {
@@ -391,7 +396,9 @@ public class MainActivity extends AppCompatActivity {
         StartEntryAnimation();
 
         // auto reconnect to strip if needed
-        if(MemoryConnector.getBool(this, getString(R.string.var_clean_open)))
+        if(MemoryConnector.getBool(this, getString(R.string.var_clean_open))) {
             service.bt.Reconnect();
+            MemoryConnector.setBool(this, getString(R.string.var_clean_open), false);
+        }
     }
 }
