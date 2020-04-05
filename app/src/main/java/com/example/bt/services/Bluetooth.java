@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.example.bt.MemoryConnector;
 import com.example.bt.R;
+import com.example.bt.activities.MainActivity;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -116,7 +117,8 @@ Log.d("APP", intent.getAction());
     }
     public void Reconnect(){
         String autoReconnectMac = MemoryConnector.getString(context, context.getString(R.string.var_auto_reconnect_mac));
-        if(autoReconnectMac != null && connectedDevice == null){
+        if(autoReconnectMac != null && connectedDevice == null
+                && MemoryConnector.getBool(context, context.getString(R.string.var_auto_reconnect))){
             this.ConnectPaired(autoReconnectMac);
         }
     }

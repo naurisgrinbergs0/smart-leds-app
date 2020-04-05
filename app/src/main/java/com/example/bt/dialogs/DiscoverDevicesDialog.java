@@ -17,6 +17,7 @@ import androidx.fragment.app.DialogFragment;
 import com.example.bt.R;
 import com.example.bt.list_adapters.DiscoverDevicesListAdapter;
 import com.example.bt.list_adapters.DiscoverDevicesRowItem;
+import com.example.bt.services.Bluetooth;
 
 import java.util.ArrayList;
 
@@ -31,6 +32,7 @@ public class DiscoverDevicesDialog extends DialogFragment {
     private Button scanDevicesButton;
     private Button scanDoneButton;
     private ProgressBar PB_discoverDevices;
+    private View noDevicesLayout;
 
     @NonNull
     @Override
@@ -55,6 +57,7 @@ public class DiscoverDevicesDialog extends DialogFragment {
         scanDevicesButton = parent.findViewById(R.id.scanButton);
         scanDoneButton = parent.findViewById(R.id.homeConstraintLayout);
         PB_discoverDevices = parent.findViewById(R.id.PB_discoverDevices);
+        noDevicesLayout = parent.findViewById(R.id.noDevicesLayout);
     }
 
     private void setupEventListeners() {
@@ -76,13 +79,13 @@ public class DiscoverDevicesDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 discoverDevices();
-                appear(PB_discoverDevices);
             }
         });
 
         scanDoneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Bluetooth.CancelDiscovery();
                 dismiss();
             }
         });
@@ -93,8 +96,9 @@ public class DiscoverDevicesDialog extends DialogFragment {
                 new DiscoverDevicesListAdapter(getContext(), new ArrayList<DiscoverDevicesRowItem>());
         discoverDevicesListView.setAdapter(discoverDevicesListAdapter);
 
-        if(availableDeviceList != null)
+        if(availableDeviceList.size() != 0)
             availableDeviceList.clear();
+        Bluetooth.StartDiscovery();
     }
 
     public void postDeviceConnect(BluetoothDevice connectedDevice){
@@ -109,6 +113,7 @@ public class DiscoverDevicesDialog extends DialogFragment {
 
     public void postDeviceFound(BluetoothDevice device) {
         if(!availableDeviceList.contains(device)){
+            vanish(noDevicesLayout);
             availableDeviceList.add(device);
 
             // create row item list to display
@@ -127,6 +132,7 @@ public class DiscoverDevicesDialog extends DialogFragment {
 
     public void postDiscoveryFinished(){
         vanish(PB_discoverDevices);
+        scanDevicesButton.setEnabled(true);
         scanDevicesButton.setEnabled(true);
     }
 

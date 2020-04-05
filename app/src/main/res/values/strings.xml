@@ -20,7 +20,8 @@
     <string name="time_connected">Time connected: %s</string>
     <string name="connected">Connected</string>
     <string name="connecting_to">Connecting to %s</string>
-    <string name="sync_lights_with_music">Synchronize strip with audio</string>
+    <string name="sync_lights_with_music">Synchronize lights\nwith music</string>
+    <string name="emptiness">e m p t i n e s s</string>
 
     <!-- Toasts -->
     <string name="toast_strip_connected">Connected to %s</string>
@@ -35,6 +36,8 @@
     <string name="var_auto_reconnect_mac">var_auto_reconnect_mac</string>
     <string name="var_auto_reconnect_name">var_auto_reconnect_name</string>
     <string name="var_clean_open">var_clean_open</string>
+    <string name="var_sync_smoothness">var_sync_smoothness</string>
+    <string name="var_sync_sensitivity">var_sync_sensitivity</string>
 
     <!-- Action names -->
     <string name="action_foreground_service_bind">action_foreground_service_bind</string>

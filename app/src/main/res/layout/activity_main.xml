@@ -48,7 +48,7 @@
                 android:text="Find LED strip"
                 android:textAlignment="center"
                 android:textAllCaps="false"
-                android:textColor="@drawable/text_neutral"
+                android:textColor="@drawable/text_home"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

@@ -325,7 +325,9 @@ public class MainActivity extends AppCompatActivity {
         switch (intent.getAction()){
             case BluetoothDevice.ACTION_FOUND : {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if(discoverDevicesDialog != null)
+                if(discoverDevicesDialog != null
+                        && discoverDevicesDialog.getDialog() != null
+                        && discoverDevicesDialog.getDialog().isShowing())
                     discoverDevicesDialog.postDeviceFound(device);
                 break;
             }
@@ -357,12 +359,16 @@ public class MainActivity extends AppCompatActivity {
                 break;
             }
             case BluetoothAdapter.ACTION_DISCOVERY_STARTED : {
-                if(discoverDevicesDialog != null)
+                if(discoverDevicesDialog != null
+                        && discoverDevicesDialog.getDialog() != null
+                        && discoverDevicesDialog.getDialog().isShowing())
                     discoverDevicesDialog.postDiscoveryStarted();
                 break;
             }
             case BluetoothAdapter.ACTION_DISCOVERY_FINISHED : {
-                if(discoverDevicesDialog != null && discoverDevicesDialog.isVisible())
+                if(discoverDevicesDialog != null
+                        && discoverDevicesDialog.getDialog() != null
+                        && discoverDevicesDialog.getDialog().isShowing())
                     discoverDevicesDialog.postDiscoveryFinished();
                 break;
             }

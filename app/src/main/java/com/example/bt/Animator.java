@@ -5,6 +5,7 @@ import android.view.View;
 
 public abstract class Animator {
 
+    public static int DURATION_SHORTEST = 300;
     public static int DURATION_SHORT = 1000;
     public static int DURATION_NORMAL = 2000;
     public static int DURATION_LONG = 3000;

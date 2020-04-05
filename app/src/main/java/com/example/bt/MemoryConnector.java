@@ -37,6 +37,11 @@ public class MemoryConnector {
         return sharedPref.getInt(name, 0);
     }
 
+    public static int getInt(Context context, String name, int defVal) {
+        SharedPreferences sharedPref = context.getApplicationContext().getSharedPreferences(sharedPreferencesFileName, Context.MODE_PRIVATE);
+        return sharedPref.getInt(name, defVal);
+    }
+
     public static void setInt(Context context, String name, int value) {
         SharedPreferences sharedPref = context.getApplicationContext().getSharedPreferences(sharedPreferencesFileName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();

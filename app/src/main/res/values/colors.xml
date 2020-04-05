@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="light">#fff</color>
+    <color name="light_half">#85FFFFFF</color>
+    <color name="light_invisible">#31FFFFFF</color>
     <color name="grey">#8D8D8D</color>
     <color name="medium">#FF2100</color>
     <color name="danger">#FF1500</color>
     <color name="danger_dark">#800D02</color>
     <color name="light_charm">#FFCA2F</color>
+    <color name="orange_charm">#FC631C</color>
     <color name="light_divider">#CFB9B9</color>
     <color name="dark">#2C0101</color>
     <color name="dracula">#1D1B1B</color>

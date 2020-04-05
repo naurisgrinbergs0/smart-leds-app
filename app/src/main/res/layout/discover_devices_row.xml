@@ -13,7 +13,8 @@
         android:layout_width="341dp"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:background="@drawable/button_neutral">
 
         <ProgressBar
             android:id="@+id/PB_connectDevice"
@@ -21,6 +22,7 @@
             android:layout_width="28dp"
             android:layout_height="24dp"
             android:layout_marginStart="16dp"
+            android:indeterminateTint="@color/light"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -30,11 +32,12 @@
             android:id="@+id/dd_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:layout_weight="0"
             android:fontFamily="sans-serif-light"
             android:text="Device Name"
             android:textAlignment="center"
-            android:textColor="@color/light"
+            android:textColor="@drawable/text_home"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -45,10 +48,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
+            android:layout_marginBottom="8dp"
             android:fontFamily="sans-serif-light"
             android:text="Tap to connect"
-            android:textColor="@color/light_charm"
+            android:textColor="@drawable/text_orange"
             android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/dd_name"
             app:layout_constraintStart_toStartOf="@+id/dd_name"
             app:layout_constraintTop_toBottomOf="@+id/dd_name" />

@@ -4,8 +4,6 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.Color;
-import android.graphics.drawable.AnimatedVectorDrawable;
-import android.graphics.drawable.Drawable;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -16,12 +14,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
+import com.example.bt.MemoryConnector;
 import com.example.bt.R;
 import com.example.bt.SharedServices;
 
 public class MusicActivity extends AppCompatActivity {
 
-    private ImageView syncImageView;
+    private ImageView startStopButton;
     private SeekBar sensitivitySeekBar;
     private SeekBar smoothnessSeekBar;
 
@@ -36,7 +35,18 @@ public class MusicActivity extends AppCompatActivity {
 
         InitializeFields();
 
-        // event listeners
+        SetEventListeners();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        smoothnessSeekBar.setProgress(MemoryConnector.getInt(this, getString(R.string.var_sync_smoothness)));
+        sensitivitySeekBar.setProgress(MemoryConnector.getInt(this, getString(R.string.var_sync_sensitivity), 70));
+    }
+
+    private void SetEventListeners() {
         homeConstraintLayout3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -45,17 +55,23 @@ public class MusicActivity extends AppCompatActivity {
             }
         });
 
-        syncImageView.setOnClickListener(new View.OnClickListener() {
+        startStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!recordTask.isRecording) {
+                if(recordTask == null) {
+                    recordTask = new RecordTask();
+                    recordTask.sensitivity = (sensitivitySeekBar.getMax() - sensitivitySeekBar.getProgress()) / 10f;
+                    recordTask.coefficient = (float) (255f / Math.pow(255f, recordTask.sensitivity));
                     recordTask.execute();
-                    Drawable syncButtonDrawable =  syncImageView.getDrawable();
-                    ((AnimatedVectorDrawable)syncButtonDrawable).start();
+
+                    startStopButton.setImageDrawable(getDrawable(R.drawable.icon_stop));
                 }
                 else {
-                    // stop recording
+                    recordTask.cancel(true);
                     recordTask.isRecording = false;
+                    recordTask = null;
+
+                    startStopButton.setImageDrawable(getDrawable(R.drawable.icon_microphone));
                 }
             }
         });
@@ -64,6 +80,7 @@ public class MusicActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 SharedServices.DataTransfer.SetDuration(progress);
+                MemoryConnector.setInt(MusicActivity.this, getString(R.string.var_sync_smoothness), progress);
             }
 
             @Override
@@ -84,6 +101,7 @@ public class MusicActivity extends AppCompatActivity {
                     recordTask.sensitivity = (sensitivitySeekBar.getMax() - progress) / 10f;
                     recordTask.coefficient = (float) (255f / Math.pow(255f, recordTask.sensitivity));
                 }
+                MemoryConnector.setInt(MusicActivity.this, getString(R.string.var_sync_sensitivity), progress);
             }
 
             @Override
@@ -99,14 +117,10 @@ public class MusicActivity extends AppCompatActivity {
     }
 
     private void InitializeFields() {
-        syncImageView = findViewById(R.id.syncImageView);
+        startStopButton = findViewById(R.id.startStopButton);
         sensitivitySeekBar = findViewById(R.id.sensitivitySeekBar);
         smoothnessSeekBar = findViewById(R.id.smoothnessSeekBar);
         homeConstraintLayout3 = findViewById(R.id.homeConstraintLayout3);
-
-        recordTask = new RecordTask();
-        recordTask.sensitivity = (sensitivitySeekBar.getMax() - sensitivitySeekBar.getProgress()) / 10f;
-        recordTask.coefficient = (float) (255f / Math.pow(255f, recordTask.sensitivity));
     }
 
 
