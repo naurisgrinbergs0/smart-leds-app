@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -12,6 +13,9 @@ import android.widget.Toast;
 
 import com.example.bt.MemoryConnector;
 import com.example.bt.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import static com.example.bt.SharedServices.*;
 

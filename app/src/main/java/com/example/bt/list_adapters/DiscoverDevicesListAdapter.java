@@ -40,7 +40,7 @@ public class DiscoverDevicesListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if(convertView == null){
-            convertView = thisInflater.inflate(R.layout.discover_devices_row, parent, false);
+            convertView = thisInflater.inflate(R.layout.row_discover_devices, parent, false);
             TextView nameText = (TextView)convertView.findViewById(R.id.dd_name);
 
             DiscoverDevicesRowItem currentRow = (DiscoverDevicesRowItem)getItem(position);

@@ -39,7 +39,7 @@ public class DiscoverDevicesDialog extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        View view = getActivity().getLayoutInflater().inflate(R.layout.discover_devices, null);
+        View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_discover_devices, null);
         builder.setView(view);
 
         setupFields(view);

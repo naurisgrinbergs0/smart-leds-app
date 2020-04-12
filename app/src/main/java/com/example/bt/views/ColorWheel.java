@@ -31,6 +31,7 @@ public class ColorWheel extends View {
     private int currentX;
     private int currentY;
     private int colorPrev;
+    private int colorCurrent;
     private Bitmap bitmap;
     private float totalRadius;
     private Paint bitmapPaint;
@@ -85,6 +86,17 @@ public class ColorWheel extends View {
                 getBitmapFromAsset(getContext(),"hsvWheel.png"),
                 (int)(totalRadius * 2f), (int)(totalRadius * 2f), false);
 
+        // hsv
+        float[] hsv = new float[3];
+        Color.colorToHSV(colorCurrent, hsv);
+
+        float xCenter = getMeasuredWidth() / 2;
+        float yCenter = getMeasuredHeight() / 2;
+        float radius = Math.min(xCenter, yCenter);
+        currentX = (int) (Math.cos(Math.toRadians(hsv[0])) * (hsv[1] * radius));
+        currentY = (int) (Math.sin(Math.toRadians(hsv[0])) * (hsv[1] * radius));
+
+        invalidate();
     }
 
     private void drawWheel(Canvas canvas) {
@@ -185,6 +197,27 @@ public class ColorWheel extends View {
 
         invalidate();
         return true;
+    }
+
+    public void SetColor(int color){
+        colorCurrent = color;
+
+        // hsv
+        float[] hsv = new float[3];
+        Color.colorToHSV(colorCurrent, hsv);
+
+        float xCenter = getMeasuredWidth() / 2;
+        float yCenter = getMeasuredHeight() / 2;
+        float radius = Math.min(xCenter, yCenter);
+        currentX = (int) (Math.cos(Math.toRadians(hsv[0])) * (hsv[1] * radius));
+        currentY = (int) (Math.sin(Math.toRadians(hsv[0])) * (hsv[1] * radius));
+
+        // update brightness slider
+        if(brightnessSlider != null)
+            brightnessSlider.RecalculateColors();
+
+        if(onColorChangeEventListener != null && (brightness == 0 || color != Color.TRANSPARENT))
+            onColorChangeEventListener.onEvent(color);
     }
 
     private double distanceBetweenPoints(int x1, int y1, int x2, int y2){

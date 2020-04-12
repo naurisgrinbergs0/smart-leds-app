@@ -22,6 +22,7 @@
             android:layout_marginStart="8dp"
             android:fontFamily="sans-serif-light"
             android:text="Name"
+            android:textColor="@color/light"
             android:textSize="15dp"
             app:layout_constraintBottom_toBottomOf="@+id/aa_icon"
             app:layout_constraintStart_toEndOf="@+id/aa_icon"
@@ -47,7 +48,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:stroke_color="#7C7C7C" />
+            app:stroke_color="@color/light" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

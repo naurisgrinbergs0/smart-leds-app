@@ -5,6 +5,7 @@
     <string name="button_color_picker">Color Picker</string>
     <string name="button_notification_events">Notification Events</string>
     <string name="button_discover_strips">Discover Devices</string>
+    <string name="button_choose">Choose</string>
 
     <!-- Text views -->
     <string name="settings">Settings</string>
@@ -22,6 +23,7 @@
     <string name="connecting_to">Connecting to %s</string>
     <string name="sync_lights_with_music">Synchronize lights\nwith music</string>
     <string name="emptiness">e m p t i n e s s</string>
+    <string name="notification_events_label">Notification events</string>
 
     <!-- Toasts -->
     <string name="toast_strip_connected">Connected to %s</string>
@@ -38,6 +40,7 @@
     <string name="var_clean_open">var_clean_open</string>
     <string name="var_sync_smoothness">var_sync_smoothness</string>
     <string name="var_sync_sensitivity">var_sync_sensitivity</string>
+    <string name="file_name">notification_events.json</string>
 
     <!-- Action names -->
     <string name="action_foreground_service_bind">action_foreground_service_bind</string>

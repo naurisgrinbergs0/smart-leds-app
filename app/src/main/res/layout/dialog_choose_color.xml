@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dracula"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp">
+
+        <com.example.bt.views.ColorWheel
+            android:id="@+id/chooseColorWheel"
+            android:layout_width="350dp"
+            android:layout_height="350dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.example.bt.views.BrightnessSlider
+            android:id="@+id/chooseBrightnessSlider"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            app:layout_constraintEnd_toEndOf="@+id/chooseColorWheel"
+            app:layout_constraintStart_toStartOf="@+id/chooseColorWheel"
+            app:layout_constraintTop_toBottomOf="@+id/chooseColorWheel" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="@+id/chooseBrightnessSlider"
+            app:layout_constraintStart_toStartOf="@+id/chooseBrightnessSlider"
+            app:layout_constraintTop_toBottomOf="@+id/chooseBrightnessSlider">
+
+            <Button
+                android:id="@+id/buttonChoose"
+                android:layout_width="147dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_neutral"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/button_choose"
+                android:textAllCaps="false"
+                android:textColor="@drawable/text_home"
+                android:textSize="18sp" />
+
+            <com.example.bt.views.ColorField
+                android:id="@+id/choosePreview"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="16dp" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

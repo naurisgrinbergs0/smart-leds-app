@@ -45,9 +45,9 @@ public class MainActivity extends AppCompatActivity {
 
     private Button findLedStripButton;
 
-    private PopupWindow connectPopUpWindow;
+    //private PopupWindow connectPopUpWindow;
 
-    private LayoutInflater inflater;
+    //private LayoutInflater inflater;
 
     private View settingsConstraintLayout;
     private View colorPickerConstraintLayout;
@@ -180,9 +180,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void InitializeFields(){
-        inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        connectPopUpWindow = new PopupWindow(getApplicationContext());
-        connectPopUpWindow.setContentView(inflater.inflate(R.layout.discover_devices, null, false));
+        //inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        //connectPopUpWindow = new PopupWindow(getApplicationContext());
+        //connectPopUpWindow.setContentView(inflater.inflate(R.layout.dialog_discover_devices, null, false));
 
         discoverDevicesDialog = new DiscoverDevicesDialog();
 

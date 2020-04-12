@@ -6,11 +6,14 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+
+import androidx.annotation.RequiresApi;
 
 import com.example.bt.R;
 
@@ -25,6 +28,7 @@ public class ColorField extends View {
     private int strokeWidth;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     public ColorField(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -33,7 +37,7 @@ public class ColorField extends View {
 
         try {
             colorValue = a.getInteger(R.styleable.ColorField_color_value, -1);
-            strokeColor = a.getInteger(R.styleable.ColorField_stroke_color, Color.parseColor("#000000"));
+            strokeColor = a.getInteger(R.styleable.ColorField_stroke_color, Color.WHITE);
             strokeWidth = a.getInteger(R.styleable.ColorField_stroke_width, 4);
         } finally {
             a.recycle();
@@ -42,11 +46,15 @@ public class ColorField extends View {
         init();
     }
 
+    public void SetColor(int color){
+        colorValue = color;
+        invalidate();
+    }
+
     private void init() {
         boundsRect = new RectF(0, 0, 0, 0);
 
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(colorValue);
 
         strokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         strokePaint.setStyle(Paint.Style.STROKE);
@@ -67,7 +75,7 @@ public class ColorField extends View {
         boundsRect.right = getWidth() - strokePaint.getStrokeWidth() / 2;
         boundsRect.bottom = getHeight() - strokePaint.getStrokeWidth() / 2;
 
-        if(colorValue == -1) {
+        if(colorValue == Color.TRANSPARENT) {
             canvas.drawArc(boundsRect, 45, 160, false, strokePaint);
             canvas.drawArc(boundsRect, -135, 160, false, strokePaint);
 
@@ -81,16 +89,9 @@ public class ColorField extends View {
             canvas.restore();
         }
         else {
+            paint.setColor(colorValue);
             canvas.drawArc(boundsRect, 0, 360, false, paint);
             canvas.drawArc(boundsRect, 0, 360, false, strokePaint);
         }
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if(event.getAction() == MotionEvent.ACTION_UP){
-            Log.d("ss", "ss");
-        }
-        return true;
     }
 }

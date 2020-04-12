@@ -166,4 +166,9 @@ public class BrightnessSlider extends View {
         barPaint.setShader(shader);
         invalidate();
     }
+
+    // pass value [0;1]
+    public void SetProgress(float progress){
+        currentValue = progress;
+    }
 }
