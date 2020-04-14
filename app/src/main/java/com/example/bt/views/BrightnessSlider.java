@@ -34,6 +34,14 @@ public class BrightnessSlider extends View {
     private int colorLeft;
     private int colorRight;
 
+    private OnProgressChangeEventListener onProgressChangeEventListener;
+
+
+    public void setOnProgressChangeEventListener(OnProgressChangeEventListener onProgressChangeEventListener) {
+        this.onProgressChangeEventListener = onProgressChangeEventListener;
+    }
+
+
     public BrightnessSlider(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         TypedArray a = context.getTheme().obtainStyledAttributes(
@@ -142,7 +150,9 @@ public class BrightnessSlider extends View {
                 currentValue = 1;
         }
 
-        invalidate();
+
+        if(onProgressChangeEventListener != null)
+            onProgressChangeEventListener.onEvent(currentValue);
 
         // if color picker binded
         if(colorPicker != null){
@@ -152,6 +162,7 @@ public class BrightnessSlider extends View {
                 ((ColorWheel)colorPicker).RecalculateColors();
         }
 
+        invalidate();
         return true;
     }
 
@@ -170,5 +181,10 @@ public class BrightnessSlider extends View {
     // pass value [0;1]
     public void SetProgress(float progress){
         currentValue = progress;
+    }
+
+
+    public interface OnProgressChangeEventListener {
+        void onEvent(float progress);
     }
 }

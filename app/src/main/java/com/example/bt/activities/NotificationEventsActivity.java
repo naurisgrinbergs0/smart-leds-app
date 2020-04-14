@@ -8,7 +8,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -19,7 +18,6 @@ import com.example.bt.list_adapters.AllAppsListAdapder;
 import com.example.bt.list_adapters.AllAppsRowItem;
 import com.example.bt.R;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,6 +32,7 @@ public class NotificationEventsActivity extends AppCompatActivity {
     private ArrayList<AllAppsRowItem> allAppList;
     private ChooseColorDialog chooseColorDialog;
     JSONObject appColors;
+    AllAppsListAdapder allAppsListAdapder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +67,7 @@ public class NotificationEventsActivity extends AppCompatActivity {
             }
         }
 
-        AllAppsListAdapder allAppsListAdapder = new AllAppsListAdapder(getApplicationContext(), allAppList);
+        allAppsListAdapder = new AllAppsListAdapder(getApplicationContext(), allAppList);
         allAppsListView.setAdapter(allAppsListAdapder);
     }
 
@@ -103,7 +102,8 @@ public class NotificationEventsActivity extends AppCompatActivity {
                 FragmentManager fm = NotificationEventsActivity.this.getSupportFragmentManager();
                 chooseColorDialog.packageName = allAppList.get(position).getPackageName();
                 chooseColorDialog.jsonObject = appColors;
-                chooseColorDialog.colorFieldToUpdate = view.findViewById(R.id.aa_color_field);
+                chooseColorDialog.listItem = allAppsListAdapder.getItem(position);
+                chooseColorDialog.listItemView = view;
                 chooseColorDialog.show(fm, "fragment_choose_color");
             }
         });

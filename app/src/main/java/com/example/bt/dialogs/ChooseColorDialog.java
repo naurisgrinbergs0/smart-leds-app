@@ -30,7 +30,8 @@ public class ChooseColorDialog extends DialogFragment {
 
     public String packageName;
     public JSONObject jsonObject;
-    public ColorField colorFieldToUpdate;
+    public AllAppsRowItem listItem;
+    public View listItemView;
 
     @NonNull
     @Override
@@ -85,16 +86,22 @@ public class ChooseColorDialog extends DialogFragment {
                 // if chosen color is not transparent - append to JSON array
                 if(color != Color.TRANSPARENT) {
                     try {
+                        // if brightness is 0 - color is transparent
+                        if(brightnessSlider.GetBrightness() == 0)
+                            color = Color.TRANSPARENT;
+
                         // create object prop
                         if(jsonObject.has(packageName))
                             jsonObject.remove(packageName);
-                        jsonObject.put(packageName, color);
+                        if(color != Color.TRANSPARENT)
+                            jsonObject.put(packageName, color);
 
                         // save ready-to-go json object to file
                         MemoryConnector.writeJsonToFile(getContext(), getString(R.string.file_name), jsonObject);
 
                         // update app in list
-                        colorFieldToUpdate.SetColor(color);
+                        listItem.setColor(color);
+                        ((ColorField)listItemView.findViewById(R.id.aa_color_field)).SetColor(color);
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -107,6 +114,8 @@ public class ChooseColorDialog extends DialogFragment {
         colorWheel.setOnColorChangeEventListener(new ColorWheel.OnColorChangeEventListener() {
             @Override
             public void onEvent(int color) {
+            if(brightnessSlider.GetBrightness() == 0)
+                color = Color.TRANSPARENT;
             colorPreview.SetColor(color);
             }
         });
