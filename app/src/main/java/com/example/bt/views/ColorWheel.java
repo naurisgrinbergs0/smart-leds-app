@@ -23,6 +23,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
+import com.example.bt.R;
+
 import java.io.InputStream;
 
 public class ColorWheel extends View {
@@ -39,6 +41,9 @@ public class ColorWheel extends View {
     private OnColorChangeEventListener onColorChangeEventListener;
     private BrightnessSlider brightnessSlider;
     private ColorMatrix colorMatrix;
+
+    private boolean edgeHit = false;
+    private boolean edgeReleased = true;
 
     public void setOnColorChangeEventListener(OnColorChangeEventListener onColorChangeEventListener) {
         this.onColorChangeEventListener = onColorChangeEventListener;
@@ -172,6 +177,20 @@ public class ColorWheel extends View {
                 currentX = (int) (centerX - (radius * Math.cos(angleRad)));
                 currentY = (int) (centerY - (radius * Math.sin(angleRad)));
             }
+            edgeHit = true;
+        }else{
+            edgeHit = false;
+            edgeReleased = true;
+        }
+
+        if(edgeHit && edgeReleased){
+            edgeReleased = false;
+            // vibrate
+            Vibrator vibrator = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                vibrator.vibrate(VibrationEffect.createOneShot(
+                        getContext().getResources().getInteger(R.integer.color_wheel_edge_hit_vibrate_duration),
+                        VibrationEffect.DEFAULT_AMPLITUDE));
         }
 
         int color = calculateColor(currentX, currentY, true);

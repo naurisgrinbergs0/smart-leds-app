@@ -6,6 +6,9 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.SeekBar;
@@ -19,6 +22,7 @@ public class AdvancedSeekBar extends SeekBar {
     private int stepRadius = 5;
     private int steps;
     private int min;
+    private int prevVal;
 
     public AdvancedSeekBar(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -70,8 +74,22 @@ public class AdvancedSeekBar extends SeekBar {
         float actualVal = (getMax() - min) * progress;
         float valStep = (float) (getMax() - min) / steps;
         int nearestStep = (int) (((int)(actualVal / valStep)) * valStep);
-        boolean res = super.onTouchEvent(event);
-        setProgress( nearestStep);
+
+        boolean res = false;
+        if(prevVal != nearestStep){
+            prevVal = nearestStep;
+
+            res = super.onTouchEvent(event);
+            setProgress(nearestStep);
+
+            // vibrate
+            Vibrator vibrator = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                vibrator.vibrate(VibrationEffect.createOneShot(
+                        getContext().getResources().getInteger(R.integer.seekbar_vibrate_duration),
+                        VibrationEffect.DEFAULT_AMPLITUDE));
+        }
+
         return res;
     }
 }

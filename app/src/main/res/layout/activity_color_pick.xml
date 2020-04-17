@@ -26,23 +26,10 @@
                 android:id="@+id/actionLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
                 app:layout_constraintEnd_toEndOf="@+id/changePickerLayout"
                 app:layout_constraintStart_toStartOf="@+id/changePickerLayout"
                 app:layout_constraintTop_toBottomOf="@+id/changePickerLayout">
-
-                <TextView
-                    android:id="@+id/textView7"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:fontFamily="sans-serif-light"
-                    android:text="Transition  duration in milliseconds"
-                    android:textColor="@color/light"
-                    android:textSize="16sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.503"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/pulseCheckBox" />
 
                 <RadioGroup
                     android:id="@+id/radioGroup"
@@ -52,34 +39,6 @@
                     app:layout_constraintTop_toTopOf="parent">
 
                 </RadioGroup>
-
-                <com.example.bt.views.AdvancedSeekBar
-                    android:id="@+id/durationSeekBar"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:max="10000"
-                    android:progress="300"
-                    android:progressTint="@color/light"
-                    android:secondaryProgressTint="@color/light"
-                    android:thumbTint="@color/light"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView7"
-                    app:min="0"
-                    app:steps="20" />
-
-                <CheckBox
-                    android:id="@+id/pulseCheckBox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:buttonTint="@color/light"
-                    android:fontFamily="sans-serif-light"
-                    android:text="Pulse"
-                    android:textColor="@color/light"
-                    android:textSize="16sp"
-                    app:layout_constraintStart_toStartOf="@+id/smoothTransitionCheckBox"
-                    app:layout_constraintTop_toBottomOf="@+id/smoothTransitionCheckBox" />
 
                 <CheckBox
                     android:id="@+id/smoothTransitionCheckBox"
@@ -92,6 +51,65 @@
                     android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/button_neutral"
+                    android:padding="10dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/smoothTransitionCheckBox">
+
+                    <TextView
+                        android:id="@+id/textView7"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-light"
+                        android:text="Transition  duration in milliseconds"
+                        android:textColor="@color/light"
+                        android:textSize="16sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.example.bt.views.AdvancedSeekBar
+                        android:id="@+id/durationSeekBar"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:hapticFeedbackEnabled="false"
+                        android:max="5000"
+                        android:progress="0"
+                        android:progressTint="@color/light"
+                        android:secondaryProgressTint="@color/light"
+                        android:thumbTint="@color/light"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textView7"
+                        app:min="0"
+                        app:steps="20" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:fontFamily="sans-serif-light"
+                        android:text="0"
+                        android:textColor="@color/light"
+                        app:layout_constraintStart_toStartOf="@+id/durationSeekBar"
+                        app:layout_constraintTop_toBottomOf="@+id/durationSeekBar" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:fontFamily="sans-serif-light"
+                        android:text="5000"
+                        android:textColor="@color/light"
+                        app:layout_constraintEnd_toEndOf="@+id/durationSeekBar"
+                        app:layout_constraintTop_toBottomOf="@+id/durationSeekBar" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

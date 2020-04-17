@@ -71,11 +71,22 @@ public class NotificationEventsActivity extends AppCompatActivity {
         allAppsListView.setAdapter(allAppsListAdapder);
     }
 
+    private void goBack() {
+        finish();
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+    }
+
     private JSONObject loadAppColors() {
         JSONObject j = MemoryConnector.readJsonFromFile(this, getString(R.string.file_name));
         if(j == null)
             j = new JSONObject();
         return j;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        goBack();
     }
 
     private void InitializeFields() {
@@ -90,8 +101,7 @@ public class NotificationEventsActivity extends AppCompatActivity {
         backLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
-                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                goBack();
             }
         });
 

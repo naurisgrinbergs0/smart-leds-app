@@ -1,14 +1,24 @@
 package com.example.bt;
 
 import android.animation.ObjectAnimator;
+import android.content.Context;
+import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.View;
 
 public abstract class Animator {
 
     public static int DURATION_SHORTEST = 300;
     public static int DURATION_SHORT = 1000;
-    public static int DURATION_NORMAL = 2000;
+    public static int DURATION_NORMAL = 1500;
     public static int DURATION_LONG = 3000;
+
+    public static void vibrate(Context context, int duration){
+        Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            vibrator.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE));
+    }
 
     public static void fadeOut(View v, int duration){
         if(v == null)

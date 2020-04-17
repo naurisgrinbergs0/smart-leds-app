@@ -35,8 +35,6 @@ public class ColorHive extends View {
     private Paint cellPaint;
     private Cell selectedCell;
 
-    private Vibrator vibrator = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
-
     private ColorHive.OnColorChangeEventListener onColorChangeEventListener;
 
     private class Cell{
@@ -270,8 +268,11 @@ public class ColorHive extends View {
                 onColorChangeEventListener.onEvent(GetColor(true));
 
             // vibrate
+            Vibrator vibrator = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                vibrator.vibrate(VibrationEffect.createOneShot(3, VibrationEffect.DEFAULT_AMPLITUDE));
+                vibrator.vibrate(VibrationEffect.createOneShot(
+                        getContext().getResources().getInteger(R.integer.color_hive_vibrate_duration),
+                        VibrationEffect.DEFAULT_AMPLITUDE));
         }
 
         return true;

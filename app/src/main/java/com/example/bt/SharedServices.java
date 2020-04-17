@@ -32,14 +32,6 @@ public class SharedServices {
             send(mergeBytes(new byte[]{ 0b00000011, (byte)',' }, colorToRgbString(color).getBytes()));
         }
 
-        public static void PlayPulse(int color){
-            send(mergeBytes(new byte[]{ 0b00000100, (byte)',' }, colorToRgbString(color).getBytes()));
-        }
-
-        public static void StopPulse(){
-            send(mergeBytes(new byte[]{ 0b00000100 }, ",000,000,000".getBytes()));
-        }
-
         public static void SetDuration(int duration){
             send(mergeBytes(new byte[]{ 0b00000101, (byte)',' }, zeroFill(duration, 4).getBytes()));
         }

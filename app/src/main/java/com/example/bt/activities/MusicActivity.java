@@ -39,6 +39,17 @@ public class MusicActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        goBack();
+    }
+
+    private void goBack() {
+        finish();
+        overridePendingTransition(R.anim.slide_in_top, R.anim.slide_out_bottom);
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
 
@@ -50,8 +61,7 @@ public class MusicActivity extends AppCompatActivity {
         homeConstraintLayout3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
-                overridePendingTransition(R.anim.slide_in_top, R.anim.slide_out_bottom);
+                goBack();
             }
         });
 

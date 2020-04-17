@@ -7,16 +7,26 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
+import android.service.notification.NotificationListenerService;
+import android.service.notification.StatusBarNotification;
+import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
+import com.example.bt.MemoryConnector;
 import com.example.bt.R;
+import com.example.bt.SharedServices;
 import com.example.bt.activities.MainActivity;
 
-public class ForegroundService extends Service {
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class ForegroundService extends NotificationListenerService {
 
     public static final String NOTIFICATION_CHANNEL_ID = "notification_channel";
 
@@ -40,6 +50,7 @@ public class ForegroundService extends Service {
 
     @Override
     public void onCreate() {
+        Log.d("FGSERV", "Creating");
         bt = new Bluetooth(getApplicationContext());
         instanceRunning = true;
         super.onCreate();
@@ -47,6 +58,7 @@ public class ForegroundService extends Service {
 
     @Override
     public void onDestroy() {
+        Log.d("FGSERV", "Destroying");
         stopService();
         super.onDestroy();
     }
@@ -81,5 +93,46 @@ public class ForegroundService extends Service {
             .setContentIntent(pendingIntent)
             .setSmallIcon(R.drawable.icon_pointlight)
             .build();
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    @Override
+    public void onNotificationPosted(StatusBarNotification sbn) {
+        super.onNotificationPosted(sbn);
+
+        // get color - package relations from file
+        JSONObject colorsJson = MemoryConnector.readJsonFromFile(getApplicationContext(),
+                this.getString(R.string.file_name));
+        String packageName = sbn.getPackageName();
+        Log.d("FGSERV", packageName);
+
+        if(colorsJson.has(packageName)) {
+            try {
+                int color = colorsJson.getInt(packageName);
+                Log.d("FGSERV", String.valueOf(color));
+                SharedServices.DataTransfer.PlayNotification(color);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onListenerConnected() {
+        super.onListenerConnected();
+        Log.d("FGSERV", "listenerConnected");
+    }
+
+    @Override
+    public void onListenerDisconnected() {
+        super.onListenerDisconnected();
+        Log.d("FGSERV", "listenerDisconnected");
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d("FGSERV", "startCommand");
+        return super.onStartCommand(intent, flags, startId);
     }
 }

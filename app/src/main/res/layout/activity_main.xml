@@ -14,7 +14,7 @@
         tools:layout_editor_absoluteY="-25dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/splashMoveLayout"
+            android:id="@+id/logoLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -26,12 +26,12 @@
 
             <ImageView
                 android:id="@+id/lightBulbImageView"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
+                android:layout_width="170dp"
+                android:layout_height="170dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/icon_lightbulb_color" />
+                app:srcCompat="@drawable/icon_smartlights_logo_gradient_lights" />
 
             <Button
                 android:id="@+id/findLedStripButton"
@@ -58,6 +58,7 @@
                 android:id="@+id/autoReconnectLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:alpha="0"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 app:layout_constraintBottom_toBottomOf="@+id/findLedStripButton"
@@ -79,6 +80,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_weight="1"
+                    android:alpha="1"
                     android:fontFamily="sans-serif-light"
                     android:text="@string/connecting_to"
                     android:textColor="@color/light"

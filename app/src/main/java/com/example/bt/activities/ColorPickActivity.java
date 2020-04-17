@@ -1,7 +1,11 @@
 package com.example.bt.activities;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,7 +32,6 @@ public class ColorPickActivity extends AppCompatActivity {
     private ColorWheel colorWheelView;
     private View homeConstraintLayout;
     private CheckBox smoothTransitionCheckBox;
-    private CheckBox pulseCheckBox;
     private int colorPickerIndex = 0;
     private Button prevPickerButton;
     private Button nextPickerButton;
@@ -47,8 +50,7 @@ public class ColorPickActivity extends AppCompatActivity {
         homeConstraintLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
-                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                goBack();
             }
         });
 
@@ -58,8 +60,6 @@ public class ColorPickActivity extends AppCompatActivity {
             public void onEvent(int color) {
                 if(smoothTransitionCheckBox.isChecked())
                     DataTransfer.SetSmoothColor(color);
-                else if(pulseCheckBox.isChecked())
-                    DataTransfer.PlayPulse(color);
                 else
                     DataTransfer.SetPlainColor(color);
             }
@@ -71,8 +71,6 @@ public class ColorPickActivity extends AppCompatActivity {
             public void onEvent(int color) {
                 if(smoothTransitionCheckBox.isChecked())
                     DataTransfer.SetSmoothColor(color);
-                else if(pulseCheckBox.isChecked())
-                    DataTransfer.PlayPulse(color);
                 else
                     DataTransfer.SetPlainColor(color);
             }
@@ -84,7 +82,7 @@ public class ColorPickActivity extends AppCompatActivity {
             public void onClick(View v) {
                 colorPickerIndex = (colorPickerIndex == 0) ? 1 : (colorPickerIndex -= 1);
                 MemoryConnector.setInt(ColorPickActivity.this, getString(R.string.var_picker_index), colorPickerIndex);
-                changePicker();
+                changePicker(true);
             }
         });
         nextPickerButton.setOnClickListener(new View.OnClickListener() {
@@ -92,25 +90,15 @@ public class ColorPickActivity extends AppCompatActivity {
             public void onClick(View v) {
                 colorPickerIndex = (colorPickerIndex == 1) ? 0 : (colorPickerIndex += 1);
                 MemoryConnector.setInt(ColorPickActivity.this, getString(R.string.var_picker_index), colorPickerIndex);
-                changePicker();
+                changePicker(true);
             }
         });
 
-
-        pulseCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(pulseCheckBox.isChecked())
-                    DataTransfer.PlayPulse(colorHiveView.GetColor(true));
-                else
-                    DataTransfer.StopPulse();
-            }
-        });
 
         durationSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                DataTransfer.SetDuration((progress < 10000 ? progress : 9999));
+                DataTransfer.SetDuration(progress);
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -121,6 +109,26 @@ public class ColorPickActivity extends AppCompatActivity {
 
             }
         });
+
+        smoothTransitionCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // vibrate
+                vibrate(getApplicationContext(), getResources().getInteger(R.integer.smooth_transation_check_box_vibrate_duration));
+                DataTransfer.SetDuration(durationSeekBar.getProgress());
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        goBack();
+    }
+
+    private void goBack() {
+        finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 
     private void InitializeFields(){
@@ -128,7 +136,6 @@ public class ColorPickActivity extends AppCompatActivity {
         colorWheelView = findViewById(R.id.colorWheelView);
         homeConstraintLayout = findViewById(R.id.homeConstraintLayout);
         smoothTransitionCheckBox = findViewById(R.id.smoothTransitionCheckBox);
-        pulseCheckBox = findViewById(R.id.pulseCheckBox);
         prevPickerButton = findViewById(R.id.prevPickerButton);
         nextPickerButton = findViewById(R.id.nextPickerButton);
         durationSeekBar = findViewById(R.id.durationSeekBar);
@@ -141,10 +148,13 @@ public class ColorPickActivity extends AppCompatActivity {
 
     private void InitializeUI(){
         colorPickerIndex = MemoryConnector.getInt(ColorPickActivity.this, getString(R.string.var_picker_index));
-        changePicker();
+        changePicker(false);
     }
 
-    private void changePicker(){
+    private void changePicker(boolean vibrate){
+        // vibrate
+        vibrate(getApplicationContext(), getResources().getInteger(R.integer.switch_color_picker_button_vibrate_duration));
+
         if(colorPickerIndex == 0){
             appear(colorHiveView);
             vanish(colorWheelView);

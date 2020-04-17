@@ -27,12 +27,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp"
-                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="sans-serif-light"
                 android:gravity="center"
-                android:text="Available LED strips"
+                android:text="@string/connect_to_led_strip"
                 android:textColor="#FFFFFF"
-                android:textSize="18sp"
+                android:textSize="22sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -101,7 +101,7 @@
 
 
             <Button
-                android:id="@+id/homeConstraintLayout"
+                android:id="@+id/backButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"

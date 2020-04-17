@@ -14,11 +14,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        InitUI();
         aMain = this; // add this activity to static var, so it can be accessed from everywhere
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -82,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy(){
         super.onDestroy();
         aMain = null; // null out activity
+        service.bt.Disconnect();
     }
 
 
@@ -180,10 +180,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void InitializeFields(){
-        //inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        //connectPopUpWindow = new PopupWindow(getApplicationContext());
-        //connectPopUpWindow.setContentView(inflater.inflate(R.layout.dialog_discover_devices, null, false));
-
         discoverDevicesDialog = new DiscoverDevicesDialog();
 
         findLedStripButton = findViewById(R.id.findLedStripButton);
@@ -209,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
             vanish(connectedLinearLayout);
 
             // set up initial animation values
-            View splashMoveLayout = findViewById(R.id.splashMoveLayout);
+            View logoLayout = findViewById(R.id.logoLayout);
             View findLedStripButton = findViewById(R.id.findLedStripButton);
             View motoLayout = findViewById(R.id.motoLayout);
             View settingsCl = findViewById(R.id.settingsConstraintLayout);
@@ -222,25 +218,31 @@ public class MainActivity extends AppCompatActivity {
                         .setText(String.format(getString(R.string.connecting_to),
                                 MemoryConnector.getString(this, getString(R.string.var_auto_reconnect_name))));
                 // set progress bar and text (connecting to ...name...)
-                fadeIn(autoReconnectL, DURATION_LONG);
+                fadeIn(autoReconnectL, DURATION_NORMAL);
             }
 
-            teleport(splashMoveLayout, DURATION_LONG, 0, (int) (splashMoveLayout.getY() + 300));
+            vanish(logoLayout);
             vanish(findLedStripButton);
             vanish(motoLayout);
             vanish(settingsCl);
 
-            move(splashMoveLayout, DURATION_LONG, 0, 0);
             if(!autoRec)
-                fadeIn(findLedStripButton, DURATION_LONG);
+                fadeIn(findLedStripButton, DURATION_NORMAL);
 
-            fadeIn(motoLayout, DURATION_LONG);
-            fadeIn(settingsCl, DURATION_LONG);
+            fadeIn(logoLayout, DURATION_NORMAL);
+            fadeIn(motoLayout, DURATION_NORMAL);
+            fadeIn(settingsCl, DURATION_NORMAL);
 
             Drawable arrowDoubleLeftDrawable =  ((ImageView)findViewById(R.id.arrowDoubleLeftImageView)).getDrawable();
             Drawable arrowDoubleRightDrawable =  ((ImageView)findViewById(R.id.arrowDoubleRightImageView)).getDrawable();
             ((AnimatedVectorDrawable)arrowDoubleLeftDrawable).start();
             ((AnimatedVectorDrawable)arrowDoubleRightDrawable).start();
+        }
+    }
+
+    private void InitUI(){
+        if(MemoryConnector.getBool(this, getString(R.string.var_clean_open))){
+
         }
     }
 
@@ -306,19 +308,21 @@ public class MainActivity extends AppCompatActivity {
         if(discoverDevicesDialog != null
                 && discoverDevicesDialog.getDialog() != null
                 && discoverDevicesDialog.getDialog().isShowing()) {
-            discoverDevicesDialog.postDeviceConnect(connectedDevice);
+
+            //discoverDevicesDialog.postDeviceConnect(connectedDevice);
             discoverDevicesDialog.dismiss();
 
             // change activity
-            Intent intent = new Intent(MainActivity.this, ColorPickActivity.class);
-            startActivity(intent);
-            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+            //Intent intent = new Intent(MainActivity.this, ColorPickActivity.class);
+            //startActivity(intent);
+            //overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         }
         // if this is true - means that auto reconnect just took place
         else{
             vanish(findViewById(R.id.autoReconnectLayout));
             fadeIn(findLedStripButton, DURATION_SHORT);
         }
+
     }
 
     public void actionCallback(Intent intent){
@@ -331,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
                     discoverDevicesDialog.postDeviceFound(device);
                 break;
             }
-            case BluetoothDevice.ACTION_ACL_CONNECTED : {Log.d("APP", "Connected Main!");
+            case BluetoothDevice.ACTION_ACL_CONNECTED : {
                 BluetoothDevice connectedDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 postDeviceConnect(connectedDevice);
                 break;
@@ -350,8 +354,20 @@ public class MainActivity extends AppCompatActivity {
                     }
                 break;
             }
-            case "action_foreground_service_bind":{
-
+            case "action_could_not_connect":{
+                // if dialog is open
+                if(discoverDevicesDialog != null
+                        && discoverDevicesDialog.getDialog() != null
+                        && discoverDevicesDialog.getDialog().isShowing())
+                    discoverDevicesDialog.actionCallback(intent);
+                // if auto reconnect is going on
+                else{
+                    vanish(findViewById(R.id.autoReconnectLayout));
+                    fadeIn(findLedStripButton, DURATION_SHORT);
+                    Toast.makeText(getApplicationContext(),
+                            String.format(getString(R.string.toast_could_not_auto_reconnect),
+                                    MemoryConnector.getString(this, getString(R.string.var_auto_reconnect_name))), Toast.LENGTH_LONG).show();
+                }
                 break;
             }
             case "action_bluetooth_communication_stop" : {
@@ -403,7 +419,11 @@ public class MainActivity extends AppCompatActivity {
 
         // auto reconnect to strip if needed
         if(MemoryConnector.getBool(this, getString(R.string.var_clean_open))) {
-            service.bt.Reconnect();
+            String autoReconnectMac = MemoryConnector.getString(getApplicationContext(), getApplicationContext().getString(R.string.var_auto_reconnect_mac));
+            if(autoReconnectMac != null &&  !IsConnectedDeviceNotNull()
+            && MemoryConnector.getBool(getApplicationContext(), getApplicationContext().getString(R.string.var_auto_reconnect))){
+                service.bt.Reconnect(autoReconnectMac);
+            }
             MemoryConnector.setBool(this, getString(R.string.var_clean_open), false);
         }
     }

@@ -22,7 +22,7 @@ import static com.example.bt.SharedServices.*;
 
 public class Bluetooth
 {
-    private static String UUID_STRING = "00001101-0000-1000-8000-00805f9b34fb";
+    private static String UUID_STRING = "00001101-0000-1000-8000-00805F9B34FB";
 
     private Context context;
 
@@ -30,7 +30,10 @@ public class Bluetooth
     private BluetoothDevice connectedDevice;
     private static BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 
+    private String autoReconnectMacAddressPendingSave;
+
     public Bluetooth(Context context){
+        Log.d("APP", "creating bt instance");
         this.context = context;
         Create();
     }
@@ -39,26 +42,44 @@ public class Bluetooth
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(aMain != null)
-                aMain.actionCallback(intent);
-            if(aSettings != null)
-                aSettings.actionCallback(intent);
-Log.d("APP", intent.getAction());
-            if(intent.getAction().equals(BluetoothDevice.ACTION_ACL_CONNECTED)){Log.d("APP", "Connected Bluetooth!");
-                CancelDiscovery();
-                connectedDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                MemoryConnector.setString(context, context.getString(R.string.var_auto_reconnect_mac), connectedDevice.getAddress());
-                MemoryConnector.setString(context, context.getString(R.string.var_auto_reconnect_name), connectedDevice.getName());
-            }
-            else if(intent.getAction().equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)){
-                if(connectedDevice == intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)) {
-                    CancelDiscovery();
-                    Disconnect();
-                    connectedDevice = null;
-                }
-            }
+            actionCallback(intent);
         }
     };
+
+    private void actionCallback(Intent intent) {
+        passCallback(intent);
+
+        Log.d("APP", "intent action: " + intent.getAction());
+        if(intent.getAction().equals(BluetoothDevice.ACTION_ACL_CONNECTED)){
+            connectedDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+            // if auto reconnect mac address ir pending for save
+            if(autoReconnectMacAddressPendingSave != null){
+                MemoryConnector.setString(context, context.getString(R.string.var_auto_reconnect_mac), connectedDevice.getAddress());
+                MemoryConnector.setString(context, context.getString(R.string.var_auto_reconnect_name), connectedDevice.getName());
+                autoReconnectMacAddressPendingSave = null;
+            }
+        }
+        else if(intent.getAction().equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)){
+            if(connectedDevice == intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)) {
+                Disconnect();
+            }
+        }
+    }
+
+    private void passCallback(Intent intent) {
+        if(aMain != null)
+            aMain.actionCallback(intent);
+        if(aSettings != null)
+            aSettings.actionCallback(intent);
+        if(aColorPick != null)
+            aColorPick.actionCallback(intent);
+        if(aMusic != null)
+            aMusic.actionCallback(intent);
+        if(aNotificationEvents != null)
+            aNotificationEvents.actionCallback(intent);
+    }
+
     private void registerReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_FOUND);
@@ -66,11 +87,9 @@ Log.d("APP", intent.getAction());
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        filter.addAction(context.getString(R.string.action_could_not_connect));
 
-        filter.addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED);
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        filter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
+        Log.d("APP", "registering receiver");
         context.registerReceiver(bluetoothReceiver, filter);
     }
 
@@ -111,23 +130,21 @@ Log.d("APP", intent.getAction());
         try {
             if(socket != null)
                 socket.close();
+            connectedDevice = null;
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    public void Reconnect(){
-        String autoReconnectMac = MemoryConnector.getString(context, context.getString(R.string.var_auto_reconnect_mac));
-        if(autoReconnectMac != null && connectedDevice == null
-                && MemoryConnector.getBool(context, context.getString(R.string.var_auto_reconnect))){
-            this.ConnectPaired(autoReconnectMac);
-        }
+    public void Reconnect(String address){
+        this.ConnectPaired(address);
     }
 
     public static void StartDiscovery(){
         BluetoothAdapter.getDefaultAdapter().startDiscovery();
     }
     public static void CancelDiscovery(){
-        BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+        if(BluetoothAdapter.getDefaultAdapter().isDiscovering())
+            BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
     }
 
     public void Send(byte[] data){
@@ -140,10 +157,15 @@ Log.d("APP", intent.getAction());
         Set<BluetoothDevice> bluetoothDevices = adapter.getBondedDevices();
         for (BluetoothDevice device : bluetoothDevices){
             if(device.getAddress().equals(address)){
+                Log.d("APP", "reconnecting (starting 'connect' thread)");
                 ConnectThread connectThread = new ConnectThread(address);
                 connectThread.start();
             }
         }
+    }
+
+    public void SetAutoReconnectMacAddressPendingSave(String autoReconnectMacAddressPendingSave) {
+        this.autoReconnectMacAddressPendingSave = autoReconnectMacAddressPendingSave;
     }
 
     private class ConnectThread extends Thread{
@@ -156,14 +178,15 @@ Log.d("APP", intent.getAction());
         @Override
         public void run() {
             super.run();
+            CancelDiscovery();
             BluetoothDevice device = adapter.getRemoteDevice(address);
-            adapter.cancelDiscovery();
             try {
-                socket = device.createRfcommSocketToServiceRecord(UUID.fromString(UUID_STRING));
+                socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString(UUID_STRING));
                 try {
-                    socket.connect();
-                } catch (IOException e) {
-                    socket.close();
+                    socket.connect();Log.d("APP", "socket connected");
+                } catch (Exception e) {
+                    socket.close(); Log.d("APP", "socket closed: " + e.getMessage());
+                    context.sendBroadcast(new Intent(context.getString(R.string.action_could_not_connect)));
                 }
             } catch (IOException e) {
                 e.printStackTrace();

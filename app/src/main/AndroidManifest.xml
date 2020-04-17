@@ -14,48 +14,32 @@
         android:allowBackup="true"
         android:label="@string/app_name"
         android:supportsRtl="true"
+        android:icon="@mipmap/icon_launcher"
         android:theme="@android:style/ThemeOverlay.Material.Dark"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".activities.SettingsActivity" android:theme="@style/modern"/>
 
         <service
             android:name=".services.ForegroundService"
-            android:enabled="true"
-            android:exported="true" />
-
-        <activity android:name=".activities.MusicActivity" android:theme="@style/modern"/>
-        <activity
-            android:name=".activities.NotificationEventsActivity"
-            android:theme="@style/modern">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".activities.ColorPickActivity"
-            android:theme="@style/modern">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".activities.MainActivity"
-            android:theme="@style/modern">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <service
-            android:name=".services.NotificationService"
-            android:label="Notification Service"
+            android:label="FG Service"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
+
+        <activity
+            android:name=".activities.MainActivity"
+            android:theme="@style/modern">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".activities.ColorPickActivity" android:theme="@style/modern"/>
+        <activity android:name=".activities.MusicActivity" android:theme="@style/modern"/>
+        <activity android:name=".activities.SettingsActivity" android:theme="@style/modern"/>
+        <activity android:name=".activities.NotificationEventsActivity" android:theme="@style/modern"/>
+
     </application>
 
 </manifest>

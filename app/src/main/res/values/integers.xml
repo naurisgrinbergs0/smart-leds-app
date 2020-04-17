@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="seekbar_vibrate_duration">5</integer>
+    <integer name="color_hive_vibrate_duration">5</integer>
+    <integer name="switch_color_picker_button_vibrate_duration">5</integer>
+    <integer name="smooth_transation_check_box_vibrate_duration">3</integer>
+    <integer name="color_wheel_edge_hit_vibrate_duration">5</integer>
+</resources>

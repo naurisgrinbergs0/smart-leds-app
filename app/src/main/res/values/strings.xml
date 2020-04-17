@@ -24,12 +24,15 @@
     <string name="sync_lights_with_music">Synchronize lights\nwith music</string>
     <string name="emptiness">e m p t i n e s s</string>
     <string name="notification_events_label">Notification events</string>
+    <string name="connect_to_led_strip">Connect to LED strip</string>
+    <string name="no_strip_currently_connected">No strip currently connected</string>
 
     <!-- Toasts -->
     <string name="toast_strip_connected">Connected to %s</string>
     <string name="toast_strip_disconnected">Disconnected from %s</string>
     <string name="foreground_service_started">Foreground service started</string>
     <string name="toast_rebooting">Rebooting %s</string>
+    <string name="toast_could_not_auto_reconnect">Could not auto-reconnect to %s</string>
 
     <!-- Memory connector variables -->
     <string name="var_notif_events">var_notif_events</string>
@@ -46,4 +49,6 @@
     <string name="action_foreground_service_bind">action_foreground_service_bind</string>
     <string name="action_bluetooth_communication_start">action_bluetooth_communication_start</string>
     <string name="action_bluetooth_communication_end">action_bluetooth_communication_stop</string>
+    <string name="action_could_not_connect">action_could_not_connect</string>
+    <string name="action_connected">action_connected</string>
 </resources>

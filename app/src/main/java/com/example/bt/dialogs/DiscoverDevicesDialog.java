@@ -2,6 +2,7 @@ package com.example.bt.dialogs;
 
 import android.app.Dialog;
 import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -30,9 +31,11 @@ public class DiscoverDevicesDialog extends DialogFragment {
 
     private ListView discoverDevicesListView;
     private Button scanDevicesButton;
-    private Button scanDoneButton;
+    private Button backButton;
     private ProgressBar PB_discoverDevices;
     private View noDevicesLayout;
+
+    private DiscoverDevicesListAdapter discoverDevicesListAdapter;
 
     @NonNull
     @Override
@@ -55,7 +58,7 @@ public class DiscoverDevicesDialog extends DialogFragment {
 
         discoverDevicesListView = parent.findViewById(R.id.discoverDevicesListView);
         scanDevicesButton = parent.findViewById(R.id.scanButton);
-        scanDoneButton = parent.findViewById(R.id.homeConstraintLayout);
+        backButton = parent.findViewById(R.id.backButton);
         PB_discoverDevices = parent.findViewById(R.id.PB_discoverDevices);
         noDevicesLayout = parent.findViewById(R.id.noDevicesLayout);
     }
@@ -65,8 +68,10 @@ public class DiscoverDevicesDialog extends DialogFragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // if already connected
-                if(!availableDeviceList.get((int)id).equals(aMain.service.bt.GetConnectedDevice()))
+                if(!availableDeviceList.get((int)id).equals(aMain.service.bt.GetConnectedDevice())) {
+                    aMain.service.bt.SetAutoReconnectMacAddressPendingSave(availableDeviceList.get(position).getAddress());
                     aMain.service.bt.Connect(availableDeviceList.get(position).getAddress());
+                }
                 else
                     aMain.service.bt.Disconnect();
 
@@ -82,7 +87,7 @@ public class DiscoverDevicesDialog extends DialogFragment {
             }
         });
 
-        scanDoneButton.setOnClickListener(new View.OnClickListener() {
+        backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Bluetooth.CancelDiscovery();
@@ -92,7 +97,7 @@ public class DiscoverDevicesDialog extends DialogFragment {
     }
 
     private void discoverDevices(){
-        DiscoverDevicesListAdapter discoverDevicesListAdapter =
+        discoverDevicesListAdapter =
                 new DiscoverDevicesListAdapter(getContext(), new ArrayList<DiscoverDevicesRowItem>());
         discoverDevicesListView.setAdapter(discoverDevicesListAdapter);
 
@@ -139,5 +144,13 @@ public class DiscoverDevicesDialog extends DialogFragment {
     public void postDiscoveryStarted() {
         appear(PB_discoverDevices);
         scanDevicesButton.setEnabled(false);
+    }
+
+    public void actionCallback(Intent intent) {
+        switch (intent.getAction()){
+            case "action_could_not_connect":{
+
+            }
+        }
     }
 }

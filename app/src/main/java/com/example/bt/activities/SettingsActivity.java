@@ -43,8 +43,7 @@ public class SettingsActivity extends AppCompatActivity {
         homeConstraintLayout2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
-                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                goBack();
             }
         });
 
@@ -54,6 +53,9 @@ public class SettingsActivity extends AppCompatActivity {
                 Switch sw = v.findViewById(R.id.itemNotifEventsSwitch);
                 sw.toggle();
                 MemoryConnector.setBool(SettingsActivity.this, getString(R.string.var_notif_events), sw.isChecked());
+
+                Intent i = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+                startActivity(i);
 
                 itemNotifEvents.setEnabled(sw.isChecked());
                 itemNotifEvents.findViewById(R.id.itemNotifEventsText).setEnabled(sw.isChecked());
@@ -104,10 +106,21 @@ public class SettingsActivity extends AppCompatActivity {
         itemStripInfo.setOnClickListener(null);
     }
 
+    private void goBack() {
+        finish();
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         aSettings = null;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        goBack();
     }
 
     private void InitializeUI() {
@@ -137,7 +150,12 @@ public class SettingsActivity extends AppCompatActivity {
                     .setText(String.format(getString(R.string.connected_to), conDev.getName()));
             ((TextView)itemStripInfo.findViewById(R.id.itemStripInfoMacAddressText))
                     .setText(String.format(getString(R.string.mac_address), conDev.getAddress()));
-            //((TextView)itemStripInfo.findViewById(R.id.itemStripInfoMacAddressText)).setText(aMain.service.bt.GetTimeConnected());
+            //((TextView)itemStripInfo.findViewById(R.id.itemStripInfoTimeConnectedText)).setText(aMain.service.bt.GetTimeConnected());
+        }else{
+            ((TextView)itemStripInfo.findViewById(R.id.itemStripInfoConnectedStripText)).setText("");
+            ((TextView)itemStripInfo.findViewById(R.id.itemStripInfoMacAddressText))
+                    .setText(getString(R.string.no_strip_currently_connected));
+            ((TextView)itemStripInfo.findViewById(R.id.itemStripInfoTimeConnectedText)).setText("");
         }
     }
 
