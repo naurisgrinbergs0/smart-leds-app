@@ -1,7 +1,6 @@
 package com.example.bt.activities;
 
 import android.Manifest;
-import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
@@ -13,7 +12,6 @@ import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -21,31 +19,32 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.bt.MemoryConnector;
 import com.example.bt.R;
+import com.example.bt.SharedServices;
 import com.example.bt.dialogs.DiscoverDevicesDialog;
 import com.example.bt.services.Bluetooth;
 import com.example.bt.services.ForegroundService;
 
-import static com.example.bt.Animator.*;
+import static com.example.bt.Animator.DURATION_NORMAL;
+import static com.example.bt.Animator.DURATION_SHORT;
+import static com.example.bt.Animator.fadeIn;
+import static com.example.bt.Animator.fadeOut;
+import static com.example.bt.Animator.vanish;
 import static com.example.bt.SharedServices.*;
-import static com.example.bt.SharedServices.aMain;
+import static com.example.bt.SharedServices.Permission;
+import static com.example.bt.services.Bluetooth.IsConnectedDeviceNotNull;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends ActivityHelper {
     private static final int TURN_BT_ON_REQUEST = 1;
     private static final int BT_PERMISSION_REQUEST = 2;
     private static final int AUDIO_PERMISSION_REQUEST = 3;
 
     private Button findLedStripButton;
-
-    //private PopupWindow connectPopUpWindow;
-
-    //private LayoutInflater inflater;
 
     private View settingsConstraintLayout;
     private View colorPickerConstraintLayout;
@@ -53,12 +52,11 @@ public class MainActivity extends AppCompatActivity {
     private View connectedLinearLayout;
 
     DiscoverDevicesDialog discoverDevicesDialog;
-    public ForegroundService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         InitUI();
-        aMain = this; // add this activity to static var, so it can be accessed from everywhere
+        Activity.Add(Activity.MAIN, this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         MemoryConnector.setBool(this, getString(R.string.var_clean_open), true);
@@ -66,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        aMain = this; // add this activity to static var, so it can be accessed from everywhere
+        //aMain = this; // add this activity to static var, so it can be accessed from everywhere
         // bind service
         ConnectService();
     }
@@ -74,14 +72,14 @@ public class MainActivity extends AppCompatActivity {
     public void onPause(){
         super.onPause();
         Bluetooth.CancelDiscovery();
-        if(IsServiceRunning())
+        if(Service.IsServiceRunning(this, Service.FOREGROUND))
             unbindService(connection);
     }
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        aMain = null; // null out activity
-        service.bt.Disconnect();
+        Activity.Remove(Activity.MAIN);
+        ((ForegroundService) Service.Get(Service.FOREGROUND)).bt.Disconnect();
     }
 
 
@@ -146,36 +144,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top);
         }
-    }
-
-
-
-    public boolean IsConnectedDeviceNotNull() {
-        if(service != null)
-            if(service.bt != null)
-                if(service.bt.GetConnectedDevice() != null)
-                    return true;
-        return false;
-    }
-    public boolean IsBtCommNotNull() {
-        if(service != null)
-            if(service.bt != null)
-                return true;
-        return false;
-    }
-    public boolean IsFgServiceNotNull() {
-        if(service != null)
-            return true;
-        return false;
-    }
-    public boolean IsServiceRunning() {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (ForegroundService.class.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
     }
 
 
@@ -250,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
     private void ConnectService(){
         Intent intent = new Intent(MainActivity.this, ForegroundService.class);
         // check if service is running
-        if(IsServiceRunning()){
+        if(Service.IsServiceRunning(this, Service.FOREGROUND)){
             bindService(intent, connection, Context.BIND_AUTO_CREATE); // bind
         }else{
             // start service
@@ -325,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void actionCallback(Intent intent){
+    public void ActionCallback(Intent intent){
         switch (intent.getAction()){
             case BluetoothDevice.ACTION_FOUND : {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
@@ -342,9 +310,8 @@ public class MainActivity extends AppCompatActivity {
             }
             case BluetoothDevice.ACTION_ACL_DISCONNECTED : {
                 BluetoothDevice disconnectedDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if(IsFgServiceNotNull())
-                    if(disconnectedDevice.equals(service.bt.GetConnectedDevice())) {
-                        service.bt.SetConnectedDevice(null);
+                if(Service.IsServiceRunning(this, Service.FOREGROUND))
+                    if(disconnectedDevice.equals(((ForegroundService) Service.Get(Service.FOREGROUND)).bt.GetConnectedDevice())) {
                         fadeOut(colorPickerConstraintLayout, DURATION_SHORT);
                         fadeOut(musicConstraintLayout, DURATION_SHORT);
                         fadeOut(connectedLinearLayout, DURATION_SHORT);
@@ -397,7 +364,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             ForegroundService.ForegroundServiceBinder binder = (ForegroundService.ForegroundServiceBinder) service;
-            MainActivity.this.service = binder.getService();
+            Service.Add(Service.FOREGROUND, binder.getService());
             OnServiceReady();
         }
 
@@ -406,7 +373,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void OnServiceReady() {
-        actionCallback(new Intent(getString(R.string.action_foreground_service_bind)));
+        ActionCallback(new Intent(getString(R.string.action_foreground_service_bind)));
 
         // initialize fields
         InitializeFields();
@@ -422,7 +389,7 @@ public class MainActivity extends AppCompatActivity {
             String autoReconnectMac = MemoryConnector.getString(getApplicationContext(), getApplicationContext().getString(R.string.var_auto_reconnect_mac));
             if(autoReconnectMac != null &&  !IsConnectedDeviceNotNull()
             && MemoryConnector.getBool(getApplicationContext(), getApplicationContext().getString(R.string.var_auto_reconnect))){
-                service.bt.Reconnect(autoReconnectMac);
+                ((ForegroundService) Service.Get(Service.FOREGROUND)).bt.Reconnect(autoReconnectMac);
             }
             MemoryConnector.setBool(this, getString(R.string.var_clean_open), false);
         }

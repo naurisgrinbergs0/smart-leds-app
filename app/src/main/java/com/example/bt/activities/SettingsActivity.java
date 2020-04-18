@@ -1,9 +1,12 @@
 package com.example.bt.activities;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,13 +16,20 @@ import android.widget.Toast;
 
 import com.example.bt.MemoryConnector;
 import com.example.bt.R;
+import com.example.bt.services.Bluetooth;
+import com.example.bt.services.ForegroundService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import static com.example.bt.SharedServices.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-public class SettingsActivity extends AppCompatActivity {
+import static com.example.bt.SharedServices.*;
+import static com.example.bt.services.Bluetooth.*;
+
+public class SettingsActivity extends ActivityHelper {
 
     private View itemNotifEvents;
     private View itemNotifEventsEnable;
@@ -29,16 +39,21 @@ public class SettingsActivity extends AppCompatActivity {
     private View itemStripInfo;
     private View homeConstraintLayout2;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Activity.Add(Activity.SETTINGS, this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        aSettings = this;
 
         InitializeFields();
 
         InitializeUI();
 
+        SetEventListeners();
+    }
+
+    private void SetEventListeners() {
         // event listeners
         homeConstraintLayout2.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,11 +100,11 @@ public class SettingsActivity extends AppCompatActivity {
         itemReboot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (aMain.IsConnectedDeviceNotNull()) {
+                if (IsConnectedDeviceNotNull()) {
                     DataTransfer.Reboot();
                     Toast.makeText(getApplicationContext(),
                             String.format(getString(R.string.toast_rebooting),
-                                    aMain.service.bt.GetConnectedDevice().getName()),
+                                    ((ForegroundService)Service.Get(Service.FOREGROUND)).bt.GetConnectedDevice().getName()),
                             Toast.LENGTH_SHORT).show();
                 }
             }
@@ -98,8 +113,12 @@ public class SettingsActivity extends AppCompatActivity {
         itemDisconnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(aMain.IsConnectedDeviceNotNull())
-                    aMain.service.bt.Disconnect();
+                if(IsConnectedDeviceNotNull()) {
+                    itemDisconnect.setEnabled(false);
+                    itemDisconnect.findViewById(R.id.itemDisconnectText).setEnabled(false);
+                    itemDisconnect.findViewById(R.id.PB_disconnectDevice).setVisibility(View.VISIBLE);
+                    ((ForegroundService) Service.Get(Service.FOREGROUND)).bt.Disconnect();
+                }
             }
         });
 
@@ -114,7 +133,13 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        aSettings = null;
+        Activity.Remove(Activity.SETTINGS);
+
+        if(timeUpdater != null) {
+            if (!timeUpdater.isCancelled())
+                timeUpdater.cancel();
+            timeUpdater = null;
+        }
     }
 
     @Override
@@ -123,6 +148,7 @@ public class SettingsActivity extends AppCompatActivity {
         goBack();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void InitializeUI() {
         // switches
         ((Switch)itemNotifEventsEnable.findViewById(R.id.itemNotifEventsSwitch))
@@ -131,12 +157,13 @@ public class SettingsActivity extends AppCompatActivity {
                 .setChecked(MemoryConnector.getBool(SettingsActivity.this, getString(R.string.var_auto_reconnect)));
 
         // disabled items
-        itemReboot.setEnabled(aMain.IsConnectedDeviceNotNull());
-        itemReboot.findViewById(R.id.itemRebootStripText).setEnabled(aMain.IsConnectedDeviceNotNull());
-        itemReboot.findViewById(R.id.itemRebootStripIcon).setEnabled(aMain.IsConnectedDeviceNotNull());
+        itemReboot.setEnabled(IsConnectedDeviceNotNull());
+        itemReboot.findViewById(R.id.itemRebootStripText).setEnabled(IsConnectedDeviceNotNull());
+        itemReboot.findViewById(R.id.itemRebootStripIcon).setEnabled(IsConnectedDeviceNotNull());
 
-        itemDisconnect.setEnabled(aMain.IsConnectedDeviceNotNull());
-        itemDisconnect.findViewById(R.id.itemDisconnectText).setEnabled(aMain.IsConnectedDeviceNotNull());
+        itemDisconnect.setEnabled(IsConnectedDeviceNotNull());
+        itemDisconnect.findViewById(R.id.itemDisconnectText).setEnabled(IsConnectedDeviceNotNull());
+        itemDisconnect.findViewById(R.id.PB_disconnectDevice).setVisibility(View.GONE);
 
         itemNotifEvents.findViewById(R.id.itemNotifEventsText)
                 .setEnabled(MemoryConnector.getBool(SettingsActivity.this, getString(R.string.var_notif_events)));
@@ -144,13 +171,14 @@ public class SettingsActivity extends AppCompatActivity {
                 .setEnabled(MemoryConnector.getBool(SettingsActivity.this, getString(R.string.var_notif_events)));
 
         // text views
-        BluetoothDevice conDev = aMain.service.bt.GetConnectedDevice();
+        BluetoothDevice conDev = ((ForegroundService)Service.Get(Service.FOREGROUND)).bt.GetConnectedDevice();
         if(conDev != null){
             ((TextView)itemStripInfo.findViewById(R.id.itemStripInfoConnectedStripText))
                     .setText(String.format(getString(R.string.connected_to), conDev.getName()));
             ((TextView)itemStripInfo.findViewById(R.id.itemStripInfoMacAddressText))
                     .setText(String.format(getString(R.string.mac_address), conDev.getAddress()));
-            //((TextView)itemStripInfo.findViewById(R.id.itemStripInfoTimeConnectedText)).setText(aMain.service.bt.GetTimeConnected());
+            timeUpdater = new TimeUpdater();
+            timeUpdater.execute();
         }else{
             ((TextView)itemStripInfo.findViewById(R.id.itemStripInfoConnectedStripText)).setText("");
             ((TextView)itemStripInfo.findViewById(R.id.itemStripInfoMacAddressText))
@@ -158,6 +186,54 @@ public class SettingsActivity extends AppCompatActivity {
             ((TextView)itemStripInfo.findViewById(R.id.itemStripInfoTimeConnectedText)).setText("");
         }
     }
+
+
+    private class TimeUpdater extends AsyncTask {
+        private boolean execute = true;
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            while (execute){
+                publishProgress();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        @Override
+        protected void onProgressUpdate(Object[] values) {
+            super.onProgressUpdate(values);
+
+            ForegroundService service = (ForegroundService) Service.Get(Service.FOREGROUND);
+            if(service != null){
+                LocalDateTime timeConnected = service.bt.GetTimeConnected();
+                LocalDateTime timeNow = LocalDateTime.now();
+
+                String connectedString = "";
+                if(timeConnected != null){
+                    Duration duration = Duration.between(timeConnected, timeNow);
+                    connectedString = String.format(getString(R.string.time_connected)
+                            ,String.format("%02d:%02d:%02d",
+                                duration.toHours(),
+                                (duration.toMinutes() % 60),
+                                ((duration.toMillis() / 1000) % 60)));
+                }
+
+                ((TextView)itemStripInfo.findViewById(R.id.itemStripInfoTimeConnectedText))
+                        .setText(connectedString);
+            }
+        }
+
+        public void cancel() {
+            execute = false;
+        }
+    };
+    private TimeUpdater timeUpdater;
+
 
     private void InitializeFields() {
         itemNotifEvents = findViewById(R.id.itemNotifEvents);
@@ -169,15 +245,25 @@ public class SettingsActivity extends AppCompatActivity {
         homeConstraintLayout2 = findViewById(R.id.homeConstraintLayout2);
     }
 
-    public void actionCallback(Intent intent){
+    public void ActionCallback(Intent intent){
         switch (intent.getAction()){
             case BluetoothDevice.ACTION_ACL_DISCONNECTED:{
+                if(timeUpdater != null) {
+                    if (!timeUpdater.isCancelled())
+                        timeUpdater.cancel();
+                    timeUpdater = null;
+                }
+
                 itemReboot.findViewById(R.id.itemRebootStripText).setEnabled(false);
                 itemReboot.findViewById(R.id.itemRebootStripIcon).setEnabled(false);
                 itemReboot.setEnabled(false);
 
-                itemDisconnect.setEnabled(false);
-                itemDisconnect.findViewById(R.id.itemDisconnectText).setEnabled(false);
+                itemDisconnect.findViewById(R.id.PB_disconnectDevice).setVisibility(View.GONE);
+
+                ((TextView)itemStripInfo.findViewById(R.id.itemStripInfoConnectedStripText)).setText("");
+                ((TextView)itemStripInfo.findViewById(R.id.itemStripInfoMacAddressText))
+                        .setText(getString(R.string.no_strip_currently_connected));
+                ((TextView)itemStripInfo.findViewById(R.id.itemStripInfoTimeConnectedText)).setText("");
             }
         }
     }

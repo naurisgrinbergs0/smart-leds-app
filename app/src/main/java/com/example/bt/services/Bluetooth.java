@@ -7,18 +7,24 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import com.example.bt.MemoryConnector;
 import com.example.bt.R;
-import com.example.bt.activities.MainActivity;
+import com.example.bt.SharedServices;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 import java.util.UUID;
 
 import static com.example.bt.SharedServices.*;
+import static com.example.bt.SharedServices.Activity.*;
 
 public class Bluetooth
 {
@@ -28,6 +34,7 @@ public class Bluetooth
 
     private BluetoothSocket socket;
     private BluetoothDevice connectedDevice;
+    private LocalDateTime timeConnected;
     private static BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 
     private String autoReconnectMacAddressPendingSave;
@@ -40,18 +47,21 @@ public class Bluetooth
 
     private BroadcastReceiver bluetoothReceiver = new BroadcastReceiver(){
 
+        @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public void onReceive(Context context, Intent intent) {
-            actionCallback(intent);
+            ActionCallback(intent);
         }
     };
 
-    private void actionCallback(Intent intent) {
-        passCallback(intent);
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void ActionCallback(Intent intent) {
+        PassCallback(intent);
 
         Log.d("APP", "intent action: " + intent.getAction());
         if(intent.getAction().equals(BluetoothDevice.ACTION_ACL_CONNECTED)){
             connectedDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+            timeConnected = LocalDateTime.now();
 
             // if auto reconnect mac address ir pending for save
             if(autoReconnectMacAddressPendingSave != null){
@@ -61,23 +71,14 @@ public class Bluetooth
             }
         }
         else if(intent.getAction().equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)){
-            if(connectedDevice == intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)) {
-                Disconnect();
+            if(connectedDevice != null){
+                if(connectedDevice.equals(intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE))) {
+                    Disconnect();
+                    connectedDevice = null;
+                    timeConnected = null;
+                }
             }
         }
-    }
-
-    private void passCallback(Intent intent) {
-        if(aMain != null)
-            aMain.actionCallback(intent);
-        if(aSettings != null)
-            aSettings.actionCallback(intent);
-        if(aColorPick != null)
-            aColorPick.actionCallback(intent);
-        if(aMusic != null)
-            aMusic.actionCallback(intent);
-        if(aNotificationEvents != null)
-            aNotificationEvents.actionCallback(intent);
     }
 
     private void registerReceiver() {
@@ -101,14 +102,13 @@ public class Bluetooth
     public BluetoothDevice GetConnectedDevice(){
         return connectedDevice;
     }
-    public void SetConnectedDevice(BluetoothDevice device){
-        connectedDevice = device;
+    public LocalDateTime GetTimeConnected(){
+        return timeConnected;
     }
 
     public void Create() {
         registerReceiver();
-        if(aMain != null)
-            aMain.actionCallback(new Intent(context.getString(R.string.action_bluetooth_communication_start)));
+        PassCallback(new Intent(context.getString(R.string.action_bluetooth_communication_start)));
     }
 /*
     public void Destroy() {
@@ -130,7 +130,7 @@ public class Bluetooth
         try {
             if(socket != null)
                 socket.close();
-            connectedDevice = null;
+            socket = null;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -218,5 +218,15 @@ public class Bluetooth
                 e.printStackTrace();
             }
         }
+    }
+
+
+    public static boolean IsConnectedDeviceNotNull() {
+        ForegroundService service = (ForegroundService) Service.Get(Service.FOREGROUND);
+        if(service != null)
+            if(service.bt != null)
+                if(service.bt.GetConnectedDevice() != null)
+                    return true;
+        return false;
     }
 }

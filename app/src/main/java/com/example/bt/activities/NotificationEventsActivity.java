@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -13,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.bt.MemoryConnector;
+import com.example.bt.SharedServices;
 import com.example.bt.dialogs.ChooseColorDialog;
 import com.example.bt.list_adapters.AllAppsListAdapder;
 import com.example.bt.list_adapters.AllAppsRowItem;
@@ -25,7 +27,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class NotificationEventsActivity extends AppCompatActivity {
+import static com.example.bt.SharedServices.*;
+
+public class NotificationEventsActivity extends ActivityHelper {
 
     private ListView allAppsListView;
     private View backLayout;
@@ -36,6 +40,7 @@ public class NotificationEventsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Activity.Add(Activity.NOTIFICATION_EVENTS, this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notification_events);
 
@@ -89,6 +94,12 @@ public class NotificationEventsActivity extends AppCompatActivity {
         goBack();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Activity.Remove(Activity.NOTIFICATION_EVENTS);
+    }
+
     private void InitializeFields() {
         allAppsListView = findViewById(R.id.allAppsListView);
         allAppList = new ArrayList<>();
@@ -124,5 +135,10 @@ public class NotificationEventsActivity extends AppCompatActivity {
         List<ApplicationInfo> apps = packageManager.getInstalledApplications(0);
         Collections.sort(apps, new ApplicationInfo.DisplayNameComparator(packageManager));
         return apps;
+    }
+
+    @Override
+    public void ActionCallback(Intent intent) {
+
     }
 }

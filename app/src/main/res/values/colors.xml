@@ -21,5 +21,5 @@
     <color name="gradient_end">#FF9900</color>
 
     <color name="gradient_dark_start">#FC0065</color>
-    <color name="gradient_dark_end">#5F0227</color>
+    <color name="gradient_dark_end">#ff312f</color>
 </resources>

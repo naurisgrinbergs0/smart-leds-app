@@ -1,22 +1,108 @@
 package com.example.bt;
 
 import android.Manifest;
-import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.bt.activities.MainActivity;
-import com.example.bt.activities.SettingsActivity;
+import com.example.bt.activities.ActivityHelper;
+import com.example.bt.services.ForegroundService;
 
 import java.util.ArrayList;
 
 public class SharedServices {
-    public static MainActivity aMain;
-    public static SettingsActivity aSettings;
+
+    public static class Service{
+        public static String FOREGROUND = "service_foreground";
+
+        private static android.app.Service[] services = new android.app.Service[1];
+        private static String[] serviceIds = new String[1];
+
+        public static android.app.Service Get(String id){
+            for (byte i = 0; i < serviceIds.length; i++)
+                if(serviceIds[i] == id)
+                    return services[i];
+            return null;
+        }
+
+        public static void Add(String id, android.app.Service activity){
+            for (byte i = 0; i < serviceIds.length; i++)
+                if(serviceIds[i] == null){
+                    serviceIds[i] = id;
+                    services[i] = activity;
+                    return;
+                }
+        }
+
+        public static void Remove(String id){
+            for (byte i = 0; i < serviceIds.length; i++)
+                if(serviceIds[i] == id){
+                    serviceIds[i] = null;
+                    services[i] = null;
+                    return;
+                }
+        }
+
+        public static boolean IsServiceRunning(Context context, String id) {
+            android.app.Service service = Get(id);
+            if(service == null)
+                return false;
+            ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+            for (ActivityManager.RunningServiceInfo s : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (service.getClass().getName().equals(s.service.getClassName())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    public static class Activity{
+        public static String MAIN = "activity_main";
+        public static String SETTINGS = "activity_settings";
+        public static String MUSIC = "activity_music";
+        public static String NOTIFICATION_EVENTS = "activity_notification_events";
+        public static String COLOR_PICK = "activity_color_pick";
+
+        private static android.app.Activity[] activities = new android.app.Activity[5];
+        private static String[] activityIds = new String[5];
+
+        public static android.app.Activity Get(String id){
+            for (byte i = 0; i < activityIds.length; i++)
+                if(activityIds[i] == id)
+                    return activities[i];
+            return null;
+        }
+
+        public static void Add(String id, android.app.Activity activity){
+            for (byte i = 0; i < activityIds.length; i++)
+                if(activityIds[i] == null){
+                    activityIds[i] = id;
+                    activities[i] = activity;
+                    return;
+                }
+        }
+
+        public static void Remove(String id){
+            for (byte i = 0; i < activityIds.length; i++)
+                if(activityIds[i] == id){
+                    activityIds[i] = null;
+                    activities[i] = null;
+                    return;
+                }
+        }
+
+        public static void PassCallback(Intent intent){
+            for (byte i = 0; i < activityIds.length; i++)
+                if(activityIds[i] != null)
+                    ((ActivityHelper)activities[i]).ActionCallback(intent);
+        }
+    }
 
     public static class DataTransfer{
 
@@ -61,7 +147,7 @@ public class SharedServices {
         }
 
         private static void send(byte[] bytes){
-            aMain.service.bt.Send(mergeBytes(bytes, ";".getBytes()));
+            ((ForegroundService)Service.Get(Service.FOREGROUND)).bt.Send(mergeBytes(bytes, ";".getBytes()));
         }
 
         private static byte[] mergeBytes(byte[] ... byteArrays){
@@ -76,10 +162,9 @@ public class SharedServices {
         }
     }
 
-
     public static class Permission{
         public static final String PERMISSION_BLUETOOTH = "permission_bluetooth";
-        public static void RequestPermission(String permission, Context context, Activity activity, int code){
+        public static void RequestPermission(String permission, Context context, android.app.Activity activity, int code){
             switch (permission){
                 case PERMISSION_BLUETOOTH:{
                     if(ContextCompat.checkSelfPermission(context

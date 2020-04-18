@@ -19,6 +19,7 @@ import com.example.bt.R;
 import com.example.bt.list_adapters.DiscoverDevicesListAdapter;
 import com.example.bt.list_adapters.DiscoverDevicesRowItem;
 import com.example.bt.services.Bluetooth;
+import com.example.bt.services.ForegroundService;
 
 import java.util.ArrayList;
 
@@ -68,12 +69,12 @@ public class DiscoverDevicesDialog extends DialogFragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // if already connected
-                if(!availableDeviceList.get((int)id).equals(aMain.service.bt.GetConnectedDevice())) {
-                    aMain.service.bt.SetAutoReconnectMacAddressPendingSave(availableDeviceList.get(position).getAddress());
-                    aMain.service.bt.Connect(availableDeviceList.get(position).getAddress());
+                if(!availableDeviceList.get((int)id).equals(((ForegroundService)Service.Get(Service.FOREGROUND)).bt.GetConnectedDevice())) {
+                    ((ForegroundService)Service.Get(Service.FOREGROUND)).bt.SetAutoReconnectMacAddressPendingSave(availableDeviceList.get(position).getAddress());
+                    ((ForegroundService)Service.Get(Service.FOREGROUND)).bt.Connect(availableDeviceList.get(position).getAddress());
                 }
                 else
-                    aMain.service.bt.Disconnect();
+                    ((ForegroundService)Service.Get(Service.FOREGROUND)).bt.Disconnect();
 
                 // add progress bar to list
                 appear(view.findViewById(R.id.PB_connectDevice));

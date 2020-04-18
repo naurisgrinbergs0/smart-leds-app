@@ -1,6 +1,7 @@
 package com.example.bt.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,7 +27,7 @@ import com.example.bt.views.ColorWheel;
 import static com.example.bt.Animator.*;
 import static com.example.bt.SharedServices.*;
 
-public class ColorPickActivity extends AppCompatActivity {
+public class ColorPickActivity extends ActivityHelper {
 
     private ColorHive colorHiveView;
     private ColorWheel colorWheelView;
@@ -40,6 +41,7 @@ public class ColorPickActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Activity.Add(Activity.COLOR_PICK, this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_color_pick);
 
@@ -126,6 +128,12 @@ public class ColorPickActivity extends AppCompatActivity {
         goBack();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Activity.Remove(Activity.COLOR_PICK);
+    }
+
     private void goBack() {
         finish();
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
@@ -164,5 +172,10 @@ public class ColorPickActivity extends AppCompatActivity {
             vanish(colorHiveView);
             brightnessSlider.BindColorPicker(colorWheelView);
         }
+    }
+
+    @Override
+    public void ActionCallback(Intent intent) {
+
     }
 }

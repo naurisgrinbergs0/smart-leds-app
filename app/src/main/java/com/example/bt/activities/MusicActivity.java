@@ -3,6 +3,7 @@ package com.example.bt.activities;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -18,7 +19,9 @@ import com.example.bt.MemoryConnector;
 import com.example.bt.R;
 import com.example.bt.SharedServices;
 
-public class MusicActivity extends AppCompatActivity {
+import static com.example.bt.SharedServices.*;
+
+public class MusicActivity extends ActivityHelper {
 
     private ImageView startStopButton;
     private SeekBar sensitivitySeekBar;
@@ -30,6 +33,7 @@ public class MusicActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Activity.Add(Activity.MUSIC, this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music);
 
@@ -55,6 +59,12 @@ public class MusicActivity extends AppCompatActivity {
 
         smoothnessSeekBar.setProgress(MemoryConnector.getInt(this, getString(R.string.var_sync_smoothness)));
         sensitivitySeekBar.setProgress(MemoryConnector.getInt(this, getString(R.string.var_sync_sensitivity), 70));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Activity.Remove(Activity.MUSIC);
     }
 
     private void SetEventListeners() {
@@ -89,7 +99,7 @@ public class MusicActivity extends AppCompatActivity {
         smoothnessSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                SharedServices.DataTransfer.SetDuration(progress);
+                DataTransfer.SetDuration(progress);
                 MemoryConnector.setInt(MusicActivity.this, getString(R.string.var_sync_smoothness), progress);
             }
 
@@ -131,6 +141,11 @@ public class MusicActivity extends AppCompatActivity {
         sensitivitySeekBar = findViewById(R.id.sensitivitySeekBar);
         smoothnessSeekBar = findViewById(R.id.smoothnessSeekBar);
         homeConstraintLayout3 = findViewById(R.id.homeConstraintLayout3);
+    }
+
+    @Override
+    public void ActionCallback(Intent intent) {
+
     }
 
 
@@ -195,7 +210,7 @@ public class MusicActivity extends AppCompatActivity {
             float averageMapped = (average - (float) min) * (255f - 0f) / (max - min) + 0;
             float value = (int) Math.abs(coefficient * Math.pow(averageMapped, sensitivity));
 
-            SharedServices.DataTransfer.SetSmoothColor(Color.rgb(value, 0, 0));
+            DataTransfer.SetSmoothColor(Color.rgb(value, 0, 0));
         }
 
         private int GetFrequency(int sampleRate, short [] audioData){
