@@ -26,16 +26,11 @@ import com.example.bt.activities.MainActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ForegroundService extends NotificationListenerService {
-
-    public static final String NOTIFICATION_CHANNEL_ID = "notification_channel";
+public class ForegroundService extends Service {
 
     private final IBinder binder = new ForegroundServiceBinder();
 
     public Bluetooth bt;
-
-    public static boolean instanceRunning = false;
-
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -52,7 +47,6 @@ public class ForegroundService extends NotificationListenerService {
     public void onCreate() {
         Log.d("FGSERV", "Creating");
         bt = new Bluetooth(getApplicationContext());
-        instanceRunning = true;
         super.onCreate();
     }
 
@@ -64,70 +58,17 @@ public class ForegroundService extends NotificationListenerService {
     }
 
     public void PromoteToNotification(){
-        initNotificationChannel();
-        startForeground(1990, buildServiceNotification());
+        startForeground(NotificationCreator.getNotificationId(),
+                NotificationCreator.getNotification(getApplicationContext()));
+    }
+
+    public void DemoteFromNotification(){
+        stopForeground(true);
     }
 
     private void stopService() {
         stopForeground(true);
         stopSelf();
-    }
-
-    private void initNotificationChannel(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel nc = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "AppServicep", NotificationManager.IMPORTANCE_LOW);
-            NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            nm.createNotificationChannel(nc);
-        }
-    }
-
-    public Notification buildServiceNotification(){
-        // set up intents
-        Intent openAppIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, openAppIntent, 0);
-
-        // notification builder
-        return new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-            .setContentTitle("LED service running")
-            .setContentText("Tap to open application")
-            .setContentIntent(pendingIntent)
-            .setSmallIcon(R.drawable.icon_pointlight)
-            .build();
-    }
-
-
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    @Override
-    public void onNotificationPosted(StatusBarNotification sbn) {
-        super.onNotificationPosted(sbn);
-
-        // get color - package relations from file
-        JSONObject colorsJson = MemoryConnector.readJsonFromFile(getApplicationContext(),
-                this.getString(R.string.file_name));
-        String packageName = sbn.getPackageName();
-        Log.d("FGSERV", packageName);
-
-        if(colorsJson.has(packageName)) {
-            try {
-                int color = colorsJson.getInt(packageName);
-                Log.d("FGSERV", String.valueOf(color));
-                SharedServices.DataTransfer.PlayNotification(color);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @Override
-    public void onListenerConnected() {
-        super.onListenerConnected();
-        Log.d("FGSERV", "listenerConnected");
-    }
-
-    @Override
-    public void onListenerDisconnected() {
-        super.onListenerDisconnected();
-        Log.d("FGSERV", "listenerDisconnected");
     }
 
     @Override

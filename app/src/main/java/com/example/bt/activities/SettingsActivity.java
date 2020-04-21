@@ -2,12 +2,20 @@ package com.example.bt.activities;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationManagerCompat;
 
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Switch;
@@ -16,8 +24,11 @@ import android.widget.Toast;
 
 import com.example.bt.MemoryConnector;
 import com.example.bt.R;
+import com.example.bt.SharedServices;
 import com.example.bt.services.Bluetooth;
 import com.example.bt.services.ForegroundService;
+import com.example.bt.services.NotificationCreator;
+import com.example.bt.services.NotificationService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -67,16 +78,16 @@ public class SettingsActivity extends ActivityHelper {
             public void onClick(View v) {
                 Switch sw = v.findViewById(R.id.itemNotifEventsSwitch);
                 sw.toggle();
-                MemoryConnector.setBool(SettingsActivity.this, getString(R.string.var_notif_events), sw.isChecked());
-
-                Intent i = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
-                startActivity(i);
-
-                itemNotifEvents.setEnabled(sw.isChecked());
-                itemNotifEvents.findViewById(R.id.itemNotifEventsText).setEnabled(sw.isChecked());
-                itemNotifEvents.findViewById(R.id.itemNotifEventsPaletteIcon).setEnabled(sw.isChecked());
+                notificationEventsEnable(sw);
             }
         });
+        itemNotifEventsEnable.findViewById(R.id.itemNotifEventsSwitch).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                notificationEventsEnable((Switch) v);
+            }
+        });
+
 
         itemNotifEvents.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,6 +105,12 @@ public class SettingsActivity extends ActivityHelper {
                 Switch sw = v.findViewById(R.id.itemAutoReconnectSwitch);
                 sw.toggle();
                 MemoryConnector.setBool(SettingsActivity.this, getString(R.string.var_auto_reconnect), sw.isChecked());
+            }
+        });
+        itemAutoReconnect.findViewById(R.id.itemAutoReconnectSwitch).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MemoryConnector.setBool(SettingsActivity.this, getString(R.string.var_auto_reconnect), ((Switch)v).isChecked());
             }
         });
 
@@ -266,5 +283,32 @@ public class SettingsActivity extends ActivityHelper {
                 ((TextView)itemStripInfo.findViewById(R.id.itemStripInfoTimeConnectedText)).setText("");
             }
         }
+    }
+
+    private void notificationEventsEnable(Switch sw){
+        if(!NotificationService.LISTENER_CONNECTED){
+            new AlertDialog.Builder(this, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
+                    .setTitle("Notification access")
+                    .setMessage("Please enable notification access for Smart Lights to continue!")
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.cancel();
+                            Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+                            startActivity(intent);
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.cancel();
+                        }
+                    })
+                    .show();
+        }
+        MemoryConnector.setBool(SettingsActivity.this, getString(R.string.var_notif_events), sw.isChecked());
+        itemNotifEvents.setEnabled(sw.isChecked());
+        itemNotifEvents.findViewById(R.id.itemNotifEventsText).setEnabled(sw.isChecked());
+        itemNotifEvents.findViewById(R.id.itemNotifEventsPaletteIcon).setEnabled(sw.isChecked());
     }
 }
