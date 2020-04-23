@@ -18,6 +18,7 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +45,7 @@ public class SettingsActivity extends ActivityHelper {
 
     private View itemNotifEvents;
     private View itemNotifEventsEnable;
+    private View itemNotifEventsDuration;
     private View itemAutoReconnect;
     private View itemReboot;
     private View itemDisconnect;
@@ -95,6 +97,23 @@ public class SettingsActivity extends ActivityHelper {
                 Intent openNotifEvents = new Intent(SettingsActivity.this, NotificationEventsActivity.class);
                 startActivity(openNotifEvents);
                 overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+            }
+        });
+
+        ((SeekBar)itemNotifEventsDuration.findViewById(R.id.itemNotifEventsSeekbar)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                SharedServices.DataTransfer.SetNotificationDuration(progress + 50);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
 
@@ -255,6 +274,7 @@ public class SettingsActivity extends ActivityHelper {
     private void InitializeFields() {
         itemNotifEvents = findViewById(R.id.itemNotifEvents);
         itemNotifEventsEnable = findViewById(R.id.itemNotifEventsEnable);
+        itemNotifEventsDuration = findViewById(R.id.itemNotifEventsDuration);
         itemAutoReconnect = findViewById(R.id.itemAutoReconnect);
         itemReboot = findViewById(R.id.itemReboot);
         itemDisconnect = findViewById(R.id.itemDisconnect);
@@ -310,5 +330,12 @@ public class SettingsActivity extends ActivityHelper {
         itemNotifEvents.setEnabled(sw.isChecked());
         itemNotifEvents.findViewById(R.id.itemNotifEventsText).setEnabled(sw.isChecked());
         itemNotifEvents.findViewById(R.id.itemNotifEventsPaletteIcon).setEnabled(sw.isChecked());
+
+        /*
+        if(sw.isChecked())
+            ((ForegroundService)Service.Get(Service.FOREGROUND)).PromoteToNotification();
+        else
+            ((ForegroundService)Service.Get(Service.FOREGROUND)).DemoteFromNotification();
+        */
     }
 }

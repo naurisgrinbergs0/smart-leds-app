@@ -122,6 +122,10 @@ public class SharedServices {
             send(mergeBytes(new byte[]{ 0b00000101, (byte)',' }, zeroFill(duration, 4).getBytes()));
         }
 
+        public static void SetNotificationDuration(int duration){
+            send(mergeBytes(new byte[]{ 0b00000110, (byte)',' }, zeroFill(duration, 4).getBytes()));
+        }
+
         public static void Reboot(){
             send(new byte[]{ 0b00000111 });
         }

@@ -26,6 +26,7 @@
     <string name="notification_events_label">Notification events</string>
     <string name="connect_to_led_strip">Connect to LED strip</string>
     <string name="no_strip_currently_connected">No strip currently connected</string>
+    <string name="notif_events_duration">Notification duration in seconds</string>
 
     <!-- Toasts -->
     <string name="toast_strip_connected">Connected to %s</string>
