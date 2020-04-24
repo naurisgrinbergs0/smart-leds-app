@@ -161,23 +161,12 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <ImageView
-                android:id="@+id/arrowDoubleLeftImageView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/arrow_double_drawable" />
-
-            <ImageView
                 android:id="@+id/gearImageView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="@+id/arrowDoubleLeftImageView"
-                app:layout_constraintStart_toStartOf="@+id/arrowDoubleLeftImageView"
-                app:layout_constraintTop_toBottomOf="@+id/arrowDoubleLeftImageView"
-                app:srcCompat="@drawable/icon_gear" />
+                app:srcCompat="@drawable/icon_gear"
+                tools:layout_editor_absoluteX="22dp"
+                tools:layout_editor_absoluteY="43dp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout

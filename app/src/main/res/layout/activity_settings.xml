@@ -131,6 +131,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_margin="20dp"
+                            android:layout_marginLeft="8dp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
@@ -141,19 +142,20 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="20dp"
                             android:layout_marginEnd="20dp"
+                            android:gravity="center_horizontal"
                             android:orientation="vertical"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/itemNotifEventsDurationTextView"
                             app:layout_constraintStart_toEndOf="@+id/itemNotifEventsDurationIcon"
                             app:layout_constraintTop_toTopOf="parent">
 
                             <TextView
-                                android:id="@+id/textView3"
+                                android:id="@+id/itemNotifEventsDurationTitle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-light"
                                 android:text="@string/notif_events_duration"
-                                android:textColor="@color/light"
+                                android:textColor="@drawable/text_light"
                                 android:textSize="14sp" />
 
                             <SeekBar
@@ -161,31 +163,25 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="5dp"
-                                android:indeterminateTint="@color/light"
                                 android:max="4950"
                                 android:progress="650"
                                 android:progressTint="@color/light"
-                                android:secondaryProgressTint="@color/light"
-                                android:thumbTint="@color/light"
-                                app:tickMarkTint="@color/light" />
-
-                            <androidx.constraintlayout.widget.ConstraintLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent">
-
-                                <TextView
-                                    android:id="@+id/textView8"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="sans-serif-light"
-                                    android:text="5"
-                                    android:textColor="@color/light"
-                                    app:layout_constraintEnd_toEndOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent" />
-
-                            </androidx.constraintlayout.widget.ConstraintLayout>
+                                android:thumbTint="@color/light" />
 
                         </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/itemNotifEventsDurationTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="20dp"
+                            android:fontFamily="sans-serif-light"
+                            android:text="0.70"
+                            android:textColor="@drawable/text_light"
+                            android:textSize="23sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
 
 
                     </androidx.constraintlayout.widget.ConstraintLayout>

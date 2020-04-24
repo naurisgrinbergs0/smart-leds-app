@@ -159,7 +159,7 @@ public class BrightnessSlider extends View {
             if(colorPicker.getClass().getName().equals(ColorHive.class.getName()))
                 ((ColorHive)colorPicker).RecalculateColors();
             else if(colorPicker.getClass().getName().equals(ColorWheel.class.getName()))
-                ((ColorWheel)colorPicker).RecalculateColors();
+                ((ColorWheel)colorPicker).RecalculateColors(true);
         }
 
         invalidate();

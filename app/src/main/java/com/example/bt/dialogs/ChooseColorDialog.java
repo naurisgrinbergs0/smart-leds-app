@@ -59,7 +59,7 @@ public class ChooseColorDialog extends DialogFragment {
                     Color.colorToHSV(color, hsv);
 
                     // populate views
-                    colorWheel.SetColor(color);
+                    colorWheel.SetColor(color, true);
                     brightnessSlider.SetProgress(hsv[2]);
                 } catch (JSONException e) {
                     e.printStackTrace();

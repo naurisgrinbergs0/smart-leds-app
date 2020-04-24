@@ -1,5 +1,6 @@
 package com.example.bt.activities;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -14,15 +15,19 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bt.Animator;
 import com.example.bt.MemoryConnector;
 import com.example.bt.R;
+import com.example.bt.services.ForegroundService;
 import com.example.bt.views.BrightnessSlider;
 import com.example.bt.views.ColorHive;
 import com.example.bt.views.ColorWheel;
+
+import java.text.DecimalFormat;
 
 import static com.example.bt.Animator.*;
 import static com.example.bt.SharedServices.*;
@@ -37,7 +42,17 @@ public class ColorPickActivity extends ActivityHelper {
     private Button prevPickerButton;
     private Button nextPickerButton;
     private SeekBar durationSeekBar;
+    private TextView durationTextView;
     private BrightnessSlider brightnessSlider;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        ForegroundService service = ((ForegroundService)Service.Get(Service.FOREGROUND));
+        if(service.bt.GetConnectedDevice() == null)
+            goBack();
+        InitializeUI();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +61,6 @@ public class ColorPickActivity extends ActivityHelper {
         setContentView(R.layout.activity_color_pick);
 
         InitializeFields();
-        InitializeUI();
 
         // event listeners      v   v   v
         homeConstraintLayout.setOnClickListener(new View.OnClickListener() {
@@ -101,6 +115,9 @@ public class ColorPickActivity extends ActivityHelper {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 DataTransfer.SetDuration(progress);
+                DecimalFormat format = new DecimalFormat("0.00");
+                durationTextView.setText(format.format(progress / 1000f));
+                MemoryConnector.setInt(ColorPickActivity.this, getString(R.string.var_smooth_transition_duration), progress);
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -118,6 +135,7 @@ public class ColorPickActivity extends ActivityHelper {
                 // vibrate
                 vibrate(getApplicationContext(), getResources().getInteger(R.integer.smooth_transation_check_box_vibrate_duration));
                 DataTransfer.SetDuration(durationSeekBar.getProgress());
+                MemoryConnector.setBool(ColorPickActivity.this, getString(R.string.var_smooth_transition_enabled), isChecked);
             }
         });
     }
@@ -147,6 +165,7 @@ public class ColorPickActivity extends ActivityHelper {
         prevPickerButton = findViewById(R.id.prevPickerButton);
         nextPickerButton = findViewById(R.id.nextPickerButton);
         durationSeekBar = findViewById(R.id.durationSeekBar);
+        durationTextView = findViewById(R.id.durationTextView);
         brightnessSlider = findViewById(R.id.brightnessSlider);
 
         colorHiveView.BindBrightnessSlider(brightnessSlider);
@@ -156,6 +175,11 @@ public class ColorPickActivity extends ActivityHelper {
 
     private void InitializeUI(){
         colorPickerIndex = MemoryConnector.getInt(ColorPickActivity.this, getString(R.string.var_picker_index));
+        smoothTransitionCheckBox.setChecked(
+                MemoryConnector.getBool(ColorPickActivity.this, getString(R.string.var_smooth_transition_enabled)));
+        durationSeekBar.setProgress(
+                MemoryConnector.getInt(ColorPickActivity.this, getString(R.string.var_smooth_transition_duration)));
+        DataTransfer.SetDuration(durationSeekBar.getProgress());
         changePicker(false);
     }
 
@@ -176,6 +200,11 @@ public class ColorPickActivity extends ActivityHelper {
 
     @Override
     public void ActionCallback(Intent intent) {
-
+        if(intent.getAction().equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)){
+            BluetoothDevice connectedDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+            ForegroundService service = ((ForegroundService)Service.Get(Service.FOREGROUND));
+            if(connectedDevice.equals(service.bt.GetConnectedDevice()))
+                goBack();
+        }
     }
 }

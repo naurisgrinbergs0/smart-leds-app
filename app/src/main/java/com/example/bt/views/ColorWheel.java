@@ -91,7 +91,7 @@ public class ColorWheel extends View {
                 getBitmapFromAsset(getContext(),"hsvWheel.png"),
                 (int)(totalRadius * 2f), (int)(totalRadius * 2f), false);
 
-        SetColor(colorCurrent);
+        SetColor(colorCurrent, false);
     }
 
     private void drawWheel(Canvas canvas) {
@@ -208,7 +208,7 @@ public class ColorWheel extends View {
         return true;
     }
 
-    public void SetColor(int color){
+    public void SetColor(int color, boolean triggerListener){
         colorCurrent = color;
 
         // hsv
@@ -228,7 +228,7 @@ public class ColorWheel extends View {
         if(onColorChangeEventListener != null && (brightness == 0 || color != Color.TRANSPARENT))
             onColorChangeEventListener.onEvent(color);
 
-        RecalculateColors();
+        RecalculateColors(triggerListener);
 
         invalidate();
     }
@@ -238,7 +238,7 @@ public class ColorWheel extends View {
         return dist;
     }
 
-    public void RecalculateColors() {
+    public void RecalculateColors(boolean triggerListener) {
         brightness = brightnessSlider.GetBrightness();
         colorMatrix.set(new float[] {
                 brightness, 0, 0, 0, 0, 0,
@@ -246,7 +246,7 @@ public class ColorWheel extends View {
                 0, 0, 0, 0, 1, 0 });
         bitmapPaint.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
 
-        if(onColorChangeEventListener != null)
+        if(onColorChangeEventListener != null && triggerListener)
             onColorChangeEventListener.onEvent(GetColor(true));
 
         invalidate();

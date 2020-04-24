@@ -1,22 +1,17 @@
 package com.example.bt.activities;
 
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -26,17 +21,12 @@ import android.widget.Toast;
 import com.example.bt.MemoryConnector;
 import com.example.bt.R;
 import com.example.bt.SharedServices;
-import com.example.bt.services.Bluetooth;
 import com.example.bt.services.ForegroundService;
-import com.example.bt.services.NotificationCreator;
 import com.example.bt.services.NotificationService;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import static com.example.bt.SharedServices.*;
 import static com.example.bt.services.Bluetooth.*;
@@ -61,9 +51,13 @@ public class SettingsActivity extends ActivityHelper {
 
         InitializeFields();
 
-        InitializeUI();
-
         SetEventListeners();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        InitializeUI();
     }
 
     private void SetEventListeners() {
@@ -80,13 +74,13 @@ public class SettingsActivity extends ActivityHelper {
             public void onClick(View v) {
                 Switch sw = v.findViewById(R.id.itemNotifEventsSwitch);
                 sw.toggle();
-                notificationEventsEnable(sw);
+                notificationEventsEnable(sw.isChecked());
             }
         });
         itemNotifEventsEnable.findViewById(R.id.itemNotifEventsSwitch).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                notificationEventsEnable((Switch) v);
+                notificationEventsEnable(((Switch)findViewById(R.id.itemNotifEventsSwitch)).isChecked());
             }
         });
 
@@ -104,6 +98,9 @@ public class SettingsActivity extends ActivityHelper {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 SharedServices.DataTransfer.SetNotificationDuration(progress + 50);
+                TextView durationTextView = itemNotifEventsDuration.findViewById(R.id.itemNotifEventsDurationTextView);
+                DecimalFormat format = new DecimalFormat("0.00");
+                durationTextView.setText(format.format((progress + 50) / 1000f));
             }
 
             @Override
@@ -150,6 +147,7 @@ public class SettingsActivity extends ActivityHelper {
             @Override
             public void onClick(View v) {
                 if(IsConnectedDeviceNotNull()) {
+                    ((ForegroundService)Service.Get(Service.FOREGROUND)).bt.SetDeviceDisconnectRequested(true);
                     itemDisconnect.setEnabled(false);
                     itemDisconnect.findViewById(R.id.itemDisconnectText).setEnabled(false);
                     itemDisconnect.findViewById(R.id.PB_disconnectDevice).setVisibility(View.VISIBLE);
@@ -201,10 +199,13 @@ public class SettingsActivity extends ActivityHelper {
         itemDisconnect.findViewById(R.id.itemDisconnectText).setEnabled(IsConnectedDeviceNotNull());
         itemDisconnect.findViewById(R.id.PB_disconnectDevice).setVisibility(View.GONE);
 
-        itemNotifEvents.findViewById(R.id.itemNotifEventsText)
-                .setEnabled(MemoryConnector.getBool(SettingsActivity.this, getString(R.string.var_notif_events)));
-        itemNotifEvents.findViewById(R.id.itemNotifEventsPaletteIcon)
-                .setEnabled(MemoryConnector.getBool(SettingsActivity.this, getString(R.string.var_notif_events)));
+        notificationEventsEnable(((Switch)itemNotifEventsEnable.findViewById(R.id.itemNotifEventsSwitch)).isChecked());
+
+        if(((ForegroundService)Service.Get(Service.FOREGROUND)).bt.GetDeviceDisconnectRequested()){
+            itemDisconnect.setEnabled(false);
+            itemDisconnect.findViewById(R.id.itemDisconnectText).setEnabled(false);
+            itemDisconnect.findViewById(R.id.PB_disconnectDevice).setVisibility(View.VISIBLE);
+        }
 
         // text views
         BluetoothDevice conDev = ((ForegroundService)Service.Get(Service.FOREGROUND)).bt.GetConnectedDevice();
@@ -305,8 +306,8 @@ public class SettingsActivity extends ActivityHelper {
         }
     }
 
-    private void notificationEventsEnable(Switch sw){
-        if(!NotificationService.LISTENER_CONNECTED){
+    private void notificationEventsEnable(boolean isChecked){
+        if(!NotificationService.LISTENER_CONNECTED && isChecked){
             new AlertDialog.Builder(this, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
                     .setTitle("Notification access")
                     .setMessage("Please enable notification access for Smart Lights to continue!")
@@ -326,10 +327,19 @@ public class SettingsActivity extends ActivityHelper {
                     })
                     .show();
         }
-        MemoryConnector.setBool(SettingsActivity.this, getString(R.string.var_notif_events), sw.isChecked());
-        itemNotifEvents.setEnabled(sw.isChecked());
-        itemNotifEvents.findViewById(R.id.itemNotifEventsText).setEnabled(sw.isChecked());
-        itemNotifEvents.findViewById(R.id.itemNotifEventsPaletteIcon).setEnabled(sw.isChecked());
+        MemoryConnector.setBool(SettingsActivity.this, getString(R.string.var_notif_events), isChecked);
+        itemNotifEvents.setEnabled(isChecked);
+        itemNotifEvents.findViewById(R.id.itemNotifEventsText).setEnabled(isChecked);
+        itemNotifEvents.findViewById(R.id.itemNotifEventsPaletteIcon).setEnabled(isChecked);
+        itemNotifEventsDuration.setEnabled(isChecked);
+        itemNotifEventsDuration.findViewById(R.id.itemNotifEventsDurationIcon).setEnabled(isChecked);
+        itemNotifEventsDuration.findViewById(R.id.itemNotifEventsDurationTextView).setEnabled(isChecked);
+        itemNotifEventsDuration.findViewById(R.id.itemNotifEventsDurationTitle).setEnabled(isChecked);
+
+        if(!isChecked)
+            itemNotifEventsDuration.findViewById(R.id.itemNotifEventsSeekbar).setVisibility(View.INVISIBLE);
+        else
+            itemNotifEventsDuration.findViewById(R.id.itemNotifEventsSeekbar).setVisibility(View.VISIBLE);
 
         /*
         if(sw.isChecked())

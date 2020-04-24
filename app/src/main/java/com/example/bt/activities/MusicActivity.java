@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
+import com.example.bt.Animator;
 import com.example.bt.MemoryConnector;
 import com.example.bt.R;
 import com.example.bt.SharedServices;
@@ -59,6 +60,20 @@ public class MusicActivity extends ActivityHelper {
 
         smoothnessSeekBar.setProgress(MemoryConnector.getInt(this, getString(R.string.var_sync_smoothness)));
         sensitivitySeekBar.setProgress(MemoryConnector.getInt(this, getString(R.string.var_sync_sensitivity), 70));
+        DataTransfer.SetDuration(smoothnessSeekBar.getProgress());
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(recordTask != null){
+            recordTask.cancel(true);
+            recordTask.isRecording = false;
+            recordTask = null;
+
+            startStopButton.setImageDrawable(getDrawable(R.drawable.icon_microphone));
+        }
+        DataTransfer.SetSmoothColor(Color.TRANSPARENT);
     }
 
     @Override
@@ -93,6 +108,7 @@ public class MusicActivity extends ActivityHelper {
 
                     startStopButton.setImageDrawable(getDrawable(R.drawable.icon_microphone));
                 }
+                Animator.vibrate(getApplicationContext(), getResources().getInteger(R.integer.sync_with_music_button_vibrate_duration));
             }
         });
 

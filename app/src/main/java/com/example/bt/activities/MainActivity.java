@@ -201,9 +201,7 @@ public class MainActivity extends ActivityHelper {
             fadeIn(motoLayout, DURATION_NORMAL);
             fadeIn(settingsCl, DURATION_NORMAL);
 
-            Drawable arrowDoubleLeftDrawable =  ((ImageView)findViewById(R.id.arrowDoubleLeftImageView)).getDrawable();
             Drawable arrowDoubleRightDrawable =  ((ImageView)findViewById(R.id.arrowDoubleRightImageView)).getDrawable();
-            ((AnimatedVectorDrawable)arrowDoubleLeftDrawable).start();
             ((AnimatedVectorDrawable)arrowDoubleRightDrawable).start();
         }
     }
@@ -265,32 +263,27 @@ public class MainActivity extends ActivityHelper {
     }
 
     public void postDeviceConnect(BluetoothDevice connectedDevice){
-        Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_strip_connected),
-                connectedDevice.getName()), Toast.LENGTH_SHORT).show();
+        // auto reconnect
+        boolean autoRec =
+                MemoryConnector.getBool(MainActivity.this, getString(R.string.var_auto_reconnect))
+                        && MemoryConnector.getString(MainActivity.this, getString(R.string.var_auto_reconnect_mac)) != null
+                        && !IsConnectedDeviceNotNull();
+        boolean manualRec = ((ForegroundService)Service.Get(Service.FOREGROUND)).bt.GetAutoReconnectMacAddressPendingSave() != null;
+        if(autoRec || manualRec){
+            Toast.makeText(getApplicationContext(), String.format(getString(R.string.toast_strip_connected),
+                    connectedDevice.getName()), Toast.LENGTH_SHORT).show();
 
-        fadeIn(colorPickerConstraintLayout, DURATION_SHORT);
-        fadeIn(musicConstraintLayout, DURATION_SHORT);
-        fadeIn(connectedLinearLayout, DURATION_SHORT);
+            fadeIn(colorPickerConstraintLayout, DURATION_SHORT);
+            fadeIn(musicConstraintLayout, DURATION_SHORT);
+            fadeIn(connectedLinearLayout, DURATION_SHORT);
 
-        // if this is true - means that user connected manually
-        if(discoverDevicesDialog != null
-                && discoverDevicesDialog.getDialog() != null
-                && discoverDevicesDialog.getDialog().isShowing()) {
-
-            //discoverDevicesDialog.postDeviceConnect(connectedDevice);
-            discoverDevicesDialog.dismiss();
-
-            // change activity
-            //Intent intent = new Intent(MainActivity.this, ColorPickActivity.class);
-            //startActivity(intent);
-            //overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+            if(manualRec){
+                discoverDevicesDialog.dismiss();
+            }else{
+                vanish(findViewById(R.id.autoReconnectLayout));
+                fadeIn(findLedStripButton, DURATION_SHORT);
+            }
         }
-        // if this is true - means that auto reconnect just took place
-        else{
-            vanish(findViewById(R.id.autoReconnectLayout));
-            fadeIn(findLedStripButton, DURATION_SHORT);
-        }
-
     }
 
     public void ActionCallback(Intent intent){

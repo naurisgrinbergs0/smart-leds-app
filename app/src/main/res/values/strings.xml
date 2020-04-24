@@ -27,6 +27,7 @@
     <string name="connect_to_led_strip">Connect to LED strip</string>
     <string name="no_strip_currently_connected">No strip currently connected</string>
     <string name="notif_events_duration">Notification duration in seconds</string>
+    <string name="transition_duration">Transition  duration in seconds</string>
 
     <!-- Toasts -->
     <string name="toast_strip_connected">Connected to %s</string>
@@ -45,6 +46,8 @@
     <string name="var_sync_smoothness">var_sync_smoothness</string>
     <string name="var_sync_sensitivity">var_sync_sensitivity</string>
     <string name="file_name">notification_events.json</string>
+    <string name="var_smooth_transition_enabled">var_smooth_transition_enabled</string>
+    <string name="var_smooth_transition_duration">var_smooth_transition_duration</string>
 
     <!-- Action names -->
     <string name="action_foreground_service_bind">action_foreground_service_bind</string>

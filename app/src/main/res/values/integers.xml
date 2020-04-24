@@ -5,4 +5,5 @@
     <integer name="switch_color_picker_button_vibrate_duration">5</integer>
     <integer name="smooth_transation_check_box_vibrate_duration">3</integer>
     <integer name="color_wheel_edge_hit_vibrate_duration">5</integer>
+    <integer name="sync_with_music_button_vibrate_duration">4</integer>
 </resources>

@@ -15,6 +15,7 @@ import androidx.annotation.RequiresApi;
 import com.example.bt.MemoryConnector;
 import com.example.bt.R;
 import com.example.bt.SharedServices;
+import com.example.bt.activities.MainActivity;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -38,6 +39,7 @@ public class Bluetooth
     private static BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 
     private String autoReconnectMacAddressPendingSave;
+    private boolean deviceDisconnectRequested;
 
     public Bluetooth(Context context){
         Log.d("APP", "creating bt instance");
@@ -60,8 +62,15 @@ public class Bluetooth
 
         Log.d("APP", "intent action: " + intent.getAction());
         if(intent.getAction().equals(BluetoothDevice.ACTION_ACL_CONNECTED)){
-            connectedDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-            timeConnected = LocalDateTime.now();
+            // auto reconnect
+            boolean autoRec =
+                    MemoryConnector.getBool(context, context.getString(R.string.var_auto_reconnect))
+                            && MemoryConnector.getString(context, context.getString(R.string.var_auto_reconnect_mac)) != null
+                            && !IsConnectedDeviceNotNull();
+            if(autoRec || autoReconnectMacAddressPendingSave != null){
+                connectedDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                timeConnected = LocalDateTime.now();
+            }
 
             // if auto reconnect mac address ir pending for save
             if(autoReconnectMacAddressPendingSave != null){
@@ -76,6 +85,7 @@ public class Bluetooth
                     Disconnect();
                     connectedDevice = null;
                     timeConnected = null;
+                    deviceDisconnectRequested = false;
                 }
             }
         }
@@ -166,6 +176,18 @@ public class Bluetooth
 
     public void SetAutoReconnectMacAddressPendingSave(String autoReconnectMacAddressPendingSave) {
         this.autoReconnectMacAddressPendingSave = autoReconnectMacAddressPendingSave;
+    }
+
+    public String GetAutoReconnectMacAddressPendingSave() {
+        return autoReconnectMacAddressPendingSave;
+    }
+
+    public boolean GetDeviceDisconnectRequested() {
+        return deviceDisconnectRequested;
+    }
+
+    public void SetDeviceDisconnectRequested(boolean deviceDisconnectRequested) {
+        this.deviceDisconnectRequested = deviceDisconnectRequested;
     }
 
     private class ConnectThread extends Thread{
