@@ -54,6 +54,7 @@ public class SettingsActivity extends ActivityHelper {
         SetEventListeners();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onStart() {
         super.onStart();
